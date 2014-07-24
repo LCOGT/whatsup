@@ -1,8 +1,23 @@
 {% extends 'base.html' %}
-{% load extra_tags %}
+{% load url from future %}
 
 {%block header %}What's Up?{%endblock%}
 
 {% block main-content %}
+<div class="row">
+<h1>What's UP?</h1>
+<form action="{% url 'whatsup.views.search' 'json' %}" method="get">
+    Date/Time (format YYYY-MM-DDTHH:MM:SS) <input name="datetime" type="text" /><br/>
+    Select an LCOGT site: <select name="site">
+                            <option value="ogg">Haleakala</option>
+                            <option value="coj">Siding Spring</option>
+                            <option value="cpt">Sutherland</option>
+                            <option value="lsc">Cerro Tololo</option>
+                            <option value="elp">McDonald, Texas</option>
+                        </select>
+                        <br/>
+    <input type="Submit" />
+</form>
+</div>
 
 {% endblock %}

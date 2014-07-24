@@ -18,7 +18,7 @@ coords = {
         }
 
 def home(request):
-    return
+    return render(request, 'home.html', {})
 
 def search(request,format=None):
     error = None
@@ -28,7 +28,7 @@ def search(request,format=None):
     try:
         time.strptime(start, "%Y-%m-%dT%H:%M:%S") 
     except:
-        error = "Date/time format must be YYYY-MM-YYTHH:MM:SS"
+        error = "Date/time format must be YYYY-MM-DDTHH:MM:SS"
     try:
         coords[site]
     except:
@@ -46,7 +46,7 @@ def search(request,format=None):
                 resp = "%s([%s])" % (callback,resp)
             return HttpResponse(resp, content_type="application/json")
         else:
-            return render(request, 'whatsup/index.html', {"data": info}, content_type="application/xhtml+xml")
+            return render(request, 'whatsup/home.html', {"data": info})
     else:
         if format == 'json':
             resp = "'error':'%s'" % error
@@ -54,7 +54,7 @@ def search(request,format=None):
                 resp = "%s([%s])" % (callback,resp)
             return HttpResponse(resp, content_type="application/json")
         else:
-            return render(request, 'whatsup/index.html', {'data': info,'error':error}, content_type="application/xhtml+xml")
+            return render(request, 'home.html', {'data': info,'error':error})
 
 def visible_targets(start,site):
     '''

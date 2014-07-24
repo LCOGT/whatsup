@@ -7,8 +7,8 @@
 	<meta name="DC.Title" content="Las Cumbres Observatory Global Telescope Network" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
 	<link rel="shortcut icon" href="http://lcogt.net/sites/default/themes/lcogt/favicon.ico" type="image/x-icon" />
-	<link rel="stylesheet" href="http://lcogt.net/sites/default/themes/lcogt/css/style.css" type="text/css">
-	<link rel="stylesheet" href="{{STATIC_URL}}css/papers.css" type="text/css">
+	<link rel="stylesheet" href="http://lcogt.net/sites/default/themes/lcogt/css/style.css" type="text/css" />
+	<link rel="stylesheet" href="{{STATIC_URL}}css/papers.css" type="text/css" />
 	{% block css-content %}{% endblock %}{% block feeds %}{% endblock %}
     {% block script-content %}{% endblock %}
 	<script type="text/javascript">
@@ -25,7 +25,7 @@
 		// -->
 	</script>
 </head>
-<body class="{% block body-class %}science{%endblock%}">
+<body class="{% block body-class %}network{%endblock%}">
 
 	<div id="page-wrapper">
 		<div id="page">
@@ -59,7 +59,7 @@
 										<form action="http://lcogt.net/search/" method="get" id="search-block-form" accept-charset="UTF-8"><div><div class="container-inline">
 											<h2 class="element-invisible">Search form</h2>
 											<label class="element-invisible" for="edit-search-block-form--2">Search </label>
-											<input title="Enter the terms you wish to search for." placeholder="Search LCOGT..." class="search form-text" type="text" id="q" name="q" placeholder="Search LCOGT..." size="15" maxlength="128" /><input title="Search" class="btn form-submit" type="submit" id="edit-submit" name="op" value="" />
+											<input title="Enter the terms you wish to search for." class="search form-text" type="text" id="q" name="q" placeholder="Search LCOGT..." size="15" maxlength="128" /><input title="Search" class="btn form-submit" type="submit" id="edit-submit" name="op" value="" />
 										</form>
 									</li>
 								</ul>
