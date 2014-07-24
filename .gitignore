@@ -1,3 +1,8 @@
+# Whats Up ignores
+whatsup/static/tours
+whatsup/static/tours/*
+whatsup.db
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
