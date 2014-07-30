@@ -1,5 +1,6 @@
 from django.http import HttpResponse, Http404
 from django.shortcuts import render
+from django.db.models import Q
 import json
 from numpy import sin, cos,arcsin, arccos, pi
 from astropy.time import Time
@@ -65,7 +66,7 @@ def visible_targets(start,site):
     lst = calc_lst(start,site)
     s0 =float(((lst-2.)*u.hourangle).to(u.degree)/u.deg)
     e0 =float(((lst+2.)*u.hourangle).to(u.degree)/u.deg)
-    tgs = Target.objects.filter(ra__gte=s0,ra__lte=e0).order_by('avm_desc')
+    tgs = Target.objects.filter(~Q(avm_desc=''),ra__gte=s0,ra__lte=e0).order_by('avm_desc')
     targets = []
     # Filter these targets by which are above (horizon + 30deg) for observer
     for t in tgs:
