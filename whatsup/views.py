@@ -16,6 +16,7 @@ coords = {
         'elp': {'lat':30.67, 'lon': -104.02},
         'sqa': {'lat':20.7075, 'lon': -156.256111},
         'cpt': {'lat':-32.38, 'lon':  20.81},
+        'tfn': {'lat':28.3, 'lon':  -16.51},
         }
 
 def home(request):
@@ -78,8 +79,12 @@ def visible_targets(start,site):
                        'dec'    : t.dec,
                        'exp'    : t.exposure,
                        'desc'   : t.description,
-                       'avmdesc': t.avm_desc}
+                       'avmdesc': t.avm_desc,
+                       'alt'    : alt,
+                       'az'     : az,}
             targets.append(params)    
+    targets = sorted(targets,key=lambda k: k['alt'])
+    targets.reverse()
     return targets
 
 def UTtoGST(start):
