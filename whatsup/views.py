@@ -33,6 +33,8 @@ def search(request,format=None):
     end = request.GET.get('enddate','')
     callback = request.GET.get('callback','')
     full = request.GET.get('full','')
+    e1 = None
+    s1 = None
     try:
         s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S") 
     except Exception,e:
