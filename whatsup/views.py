@@ -2,10 +2,13 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render
 from django.db.models import Q
 import json
-from numpy import sin, cos,arcsin, arccos, pi
+from numpy import sin, cos,arcsin, arccos, pi, arctan2, radians, degrees
 from astropy.time import Time
 from astropy import units as u
 import time
+from datetime import datetime
+from astropy.coordinates import earth_orientation as earth
+import random
 
 from whatsup.models import *
 
@@ -27,17 +30,32 @@ def search(request,format=None):
     info = ''
     site = request.GET.get('site','')
     start = request.GET.get('datetime','')
-    try:
-        time.strptime(start, "%Y-%m-%dT%H:%M:%S") 
-    except:
-        error = "Date/time format must be YYYY-MM-DDTHH:MM:SS"
-    try:
-        coords[site]
-    except:
-        error = "Site provided is not official LCOGT site abbreviation. i.e. ogg, coj, cpt, lsc or elp"
+    end = request.GET.get('enddate','')
     callback = request.GET.get('callback','')
+    full = request.GET.get('full','')
+    try:
+        s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S") 
+    except Exception,e:
+        print e
+        error = "Date/time format must be YYYY-MM-DDTHH:MM:SS"
+    if start and end:
+        try:
+            e1 = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S") 
+        except:
+            error = "End date/time format must be YYYY-MM-DDTHH:MM:SS"
+    else:
+        try:
+            coords[site]
+        except:
+            error = "Site provided is not official LCOGT site abbreviation. i.e. ogg, coj, cpt, lsc or elp"
     if not error:
-        targets = visible_targets(start,site)
+        if s1 and e1:
+            meandate = s1 + (e1-s1)/2
+            targets = targets_not_behind_sun(meandate)
+            if full != 'true':
+                targets = random.sample(targets,30)
+        else:
+            targets = visible_targets(start,site)
         info = { 'site' : site,
                  'datetime' : start,
                  'targets'  : targets,
@@ -57,6 +75,22 @@ def search(request,format=None):
             return HttpResponse(resp, content_type="application/json")
         else:
             return render(request, 'home.html', {'data': info,'error':error})
+
+def targets_not_behind_sun(start):
+    targets = []
+    ra = ra_sun(start)
+    start = (ra - 4.) % 24
+    end = (ra + 4.) % 24
+    tgs = Target.objects.exclude(avm_desc='',ra__gte=start,ra__lte=end)
+    for t in tgs:
+        params = { 'name'   : t.name,
+               'ra'     : t.ra,
+               'dec'    : t.dec,
+               'exp'    : t.exposure,
+               'desc'   : t.description,
+               'avmdesc': t.avm_desc,}
+        targets.append(params)
+    return targets
 
 def visible_targets(start,site):
     '''
@@ -143,6 +177,24 @@ def calc_lst(start,site):
     #print "%2.2d %2.2d %2.2d" % (lst_hr, lst_min, lst_sec)
     return lst_hours
 
+def ra_sun(start):
+    # days since 1 Jan 2010 Epoch
+    t = Time(start,scale='utc')
+    d = (start - datetime(2010,1,1)).days
+    eg = 279.557208 # ecliptic longitude at epoch 2010
+    wg = 283.112438 # ecliptic longitude of perigee at epoch 2010
+    e = 0.016705 #eccentricity at 2010 epoch
+    N = (360./365.242191)*d % 360
+    m_sun = N + eg +wg
+    if m_sun < 0:
+        m_sum += 360.
+    Ec = (360./pi)*e*sin(radians(m_sun))
+    l_sun = N +Ec +eg
+    obliquity = earth.obliquity(t.jd, algorithm=1980)
+    y = sin(radians(l_sun))*cos(radians(obliquity))
+    x = cos(radians(l_sun))
+    ra = degrees(arctan2(y,x))/15
+    return ra
 
 
 
