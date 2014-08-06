@@ -35,6 +35,14 @@ def search(request,format=None):
     full = request.GET.get('full','')
     e1 = None
     s1 = None
+    name = request.GET.get('name','')
+    if name:
+        info = find_target(name)
+        resp = json.dumps(info,indent=2)
+        if callback:
+            resp = "%s([%s])" % (callback,resp)
+        return HttpResponse(resp, content_type="application/json")
+
     try:
         s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S") 
     except Exception,e:
@@ -78,6 +86,22 @@ def search(request,format=None):
         else:
             return render(request, 'home.html', {'data': info,'error':error})
 
+def find_target(name):
+    t = Target.objects.filter(name__icontains=name)
+    if t.count() >0:
+        resp = {
+            'name'   : t[0].name,
+           'ra'     : t[0].ra,
+           'dec'    : t[0].dec,
+           'exp'    : t[0].exposure,
+           'desc'   : t[0].description,
+           'avmdesc': t[0].avm_desc,
+           'avmcode': t[0].avm_code
+       }
+    else:
+        resp = "'error' : 'Target not found.'"
+    return resp
+
 def targets_not_behind_sun(start):
     targets = []
     ra = ra_sun(start)
@@ -94,7 +118,7 @@ def targets_not_behind_sun(start):
         targets.append(params)
     return targets
 
-def visible_targets(start,site):
+def visible_targets(start,site,name=None):
     '''
     Produce a list of targets which visible to observer at specified date/time
     '''
