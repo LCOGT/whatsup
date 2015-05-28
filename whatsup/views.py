@@ -34,6 +34,11 @@ def search(request,format=None):
     callback = request.GET.get('callback','')
     full = request.GET.get('full','')
     name = request.GET.get('name','')
+    aperture = request.GET.get('aperture',None)
+    if request.GET.get('colour'):
+        colour= True
+    else:
+        colour =True
     if name:
         info = find_target(name)
         resp = json.dumps(info,indent=2)
@@ -58,12 +63,15 @@ def search(request,format=None):
             error = "Site provided is not official LCOGT site abbreviation. i.e. ogg, coj, cpt, lsc or elp"
     if not error:
         if s1 and e1:
+            # Find targets within a date range (i.e. not behind Sun during that time)
             meandate = s1 + (e1-s1)/2
-            targets = targets_not_behind_sun(meandate)
+            targets = targets_not_behind_sun(meandate,aperture)
             if full != 'true':
                 targets = random.sample(targets,30)
         else:
-            targets = visible_targets(start,site)
+            # Find targets for only date/time given
+            targets = visible_targets(start,site,aperture,colour)
+        # Package all targets and confirmation of date/time and site selected
         info = { 'site' : site,
                  'datetime' : start,
                  'targets'  : targets,
@@ -100,12 +108,14 @@ def find_target(name):
         resp = "'error' : 'Target not found.'"
     return resp
 
-def targets_not_behind_sun(start):
+def targets_not_behind_sun(start,aperture=None,colour=True):
     targets = []
     ra = ra_sun(start)
     start = (ra - 4.) % 24
     end = (ra + 4.) % 24
     tgs = Target.objects.exclude(avm_desc='',ra__gte=start,ra__lte=end)
+    if aperture:
+        tgs = tgs.filter(aperture=aperture)
     for t in tgs:
         params = { 'name'   : t.name,
                'ra'     : t.ra,
@@ -113,10 +123,14 @@ def targets_not_behind_sun(start):
                'exp'    : t.exposure,
                'desc'   : t.description,
                'avmdesc': t.avm_desc,}
+        if colour=True:
+            params['filters'] = t.filters.split(',')[0]
+        else:
+            params['filters'] = t.filters
         targets.append(params)
     return targets
 
-def visible_targets(start,site,name=None):
+def visible_targets(start,site,name=None,aperture=None,colour=True):
     '''
     Produce a list of targets which visible to observer at specified date/time
     '''
@@ -126,6 +140,8 @@ def visible_targets(start,site,name=None):
     s0 =float(((lst-2.)*u.hourangle).to(u.degree)/u.deg)
     e0 =float(((lst+2.)*u.hourangle).to(u.degree)/u.deg)
     tgs = Target.objects.filter(~Q(avm_desc=''),ra__gte=s0,ra__lte=e0).order_by('avm_desc')
+    if aperture:
+        tgs = tgs.filter(aperture=aperture)
     targets = []
     # Filter these targets by which are above (horizon + 30deg) for observer
     for t in tgs:
@@ -140,7 +156,11 @@ def visible_targets(start,site,name=None):
                        'avmdesc': t.avm_desc,
                        'alt'    : alt,
                        'az'     : az,}
-            targets.append(params)    
+            targets.append(params) 
+            if colour=True:
+                params['filters'] = t.filters.split(',')[0]
+            else:
+                params['filters'] = t.filters
     targets = sorted(targets,key=lambda k: k['alt'])
     targets.reverse()
     return targets
