@@ -2,6 +2,7 @@
 whatsup/static/tours
 whatsup/static/tours/*
 whatsup.db
+whatsupapp/settings.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
