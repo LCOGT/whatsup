@@ -1,3 +1,19 @@
+'''
+WhatsUP: astronomical object suggestions for Las Cumbres Observatory Global Telescope Network
+Copyright (C) 2014-2015 LCOGT
+
+views.py - data wrangling for templates
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+'''
 from django.http import HttpResponse, Http404
 from django.shortcuts import render
 from django.db.models import Q
@@ -33,6 +49,8 @@ def search(request,format=None):
     end = request.GET.get('enddate','')
     callback = request.GET.get('callback','')
     full = request.GET.get('full','')
+    e1 = None
+    s1 = None
     name = request.GET.get('name','')
     aperture = request.GET.get('aperture',None)
     if request.GET.get('colour'):
