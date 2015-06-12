@@ -141,7 +141,7 @@ def targets_not_behind_sun(start,aperture=None,colour=True):
                'exp'    : t.exposure,
                'desc'   : t.description,
                'avmdesc': t.avm_desc,}
-        if colour=True:
+        if colour==True:
             params['filters'] = t.filters.split(',')[0]
         else:
             params['filters'] = t.filters
@@ -175,7 +175,7 @@ def visible_targets(start,site,name=None,aperture=None,colour=True):
                        'alt'    : alt,
                        'az'     : az,}
             targets.append(params) 
-            if colour=True:
+            if colour==True:
                 params['filters'] = t.filters.split(',')[0]
             else:
                 params['filters'] = t.filters

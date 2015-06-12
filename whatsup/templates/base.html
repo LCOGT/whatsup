@@ -25,7 +25,7 @@
 		// -->
 	</script>
 </head>
-<body class="{% block body-class %}network{%endblock%}">
+<body class="{% block body-class %}education{%endblock%}">
 
 	<div id="page-wrapper">
 		<div id="page">
@@ -51,15 +51,15 @@
 							<nav id="navigation" role="navigation">
 								<h2 class="element-invisible">Main menu</h2>
 								<ul id="main-menu" class="block menu">
-									<li class="onecol home active"><a href="http://lcogt.net/" class="active">Home</a></li>
-									<li class="onecol network"><a href="http://lcogt.net/observatory" title="Information and live status of the global telescope network.">Observatory</a></li>
-									<li class="onecol science"><a href="http://lcogt.net/science">Science</a></li>
-									<li class="onecol education"><a href="http://lcogt.net/education">Education</a></li>
+									<li class="onecol home"><a href="http://lcogt.net/" class="active">Home</a></li>
+									<li class="onecol network"><a href="http://lcogt.net/observe" title="Log in to the Observation and Proposal Portal">Observating Portal</a></li>
+									<li class="onecol science"><a href="http://lcogt.net/astronomers" title="Information about the observatory and observatory science.">Astronomers</a></li>
+									<li class="onecol education active"><a href="http://lcogt.net/public" title="Image galleries, education activities and resources.">Public</a></li>
 									<li class="twocol search lastcol">
 										<form action="http://lcogt.net/search/" method="get" id="search-block-form" accept-charset="UTF-8"><div><div class="container-inline">
 											<h2 class="element-invisible">Search form</h2>
 											<label class="element-invisible" for="edit-search-block-form--2">Search </label>
-											<input title="Enter the terms you wish to search for." class="search form-text" type="text" id="q" name="q" placeholder="Search LCOGT..." size="15" maxlength="128" /><input title="Search" class="btn form-submit" type="submit" id="edit-submit" name="op" value="" />
+											<input title="Enter the terms you wish to search for." onblur="if (this.value == &#039;&#039;) { this.value = &#039;Search LCOGT...&#039;; }" onfocus="if (this.value == &#039;Search LCOGT...&#039;) { this.value = &#039;&#039;; }" class="search form-text" type="text" id="q" name="q" value="Search LCOGT..." size="15" maxlength="128" /><input title="Search" class="btn form-submit" type="submit" id="edit-submit" name="op" value="" />
 										</form>
 									</li>
 								</ul>
