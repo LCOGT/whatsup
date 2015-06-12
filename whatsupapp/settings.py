@@ -1,15 +1,13 @@
 import os, sys
 import platform
-from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
-import django.template
-
-django.template.add_to_builtins('django.templatetags.future')
+from django.utils.crypto import get_random_string
 
 TEST = 'test' in sys.argv
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 BASE_DIR = os.path.dirname(CURRENT_PATH)
 PREFIX = os.environ.get('PREFIX', '')
 PRODUCTION = True if CURRENT_PATH.startswith('/var/www') else False
+LOCAL_DEVELOPMENT = False if CURRENT_PATH.startswith('/var/www') else True
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -20,20 +18,18 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-DEV_DBFILE = CURRENT_PATH + '/whatsup.db'
-DEV_DB_BACKEND = 'django.db.backends.sqlite3'
-
-SECRET_KEY = os.environ.get('SECRET_KEY','')
+chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+SECRET_KEY = get_random_string(50, chars)
 
 DATABASES = {
     "default": {
         # Live DB
-        "ENGINE": "django.db.backends.mysql" if PRODUCTION else DEV_DB_BACKEND,
-        "NAME": "neoexchange" if PRODUCTION else DEV_DBFILE,
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": "neoexchange",
         "USER": os.environ.get('WHATSUP_DB_USER',''),
         "PASSWORD": os.environ.get('WHATSUP_DB_PASSWD',''),
         "HOST": os.environ.get('WHATSUP_DB_HOST',''),
-        "OPTIONS"   : {'init_command': 'SET storage_engine=INNODB'} if PRODUCTION else {},
+        "OPTIONS"   : {'init_command': 'SET storage_engine=INNODB'},
 
     }
 }
@@ -68,10 +64,8 @@ USE_TZ = False
 STATICFILES_DIRS = []
 STATIC_URL = PREFIX + '/static/'
 
-if PRODUCTION:
-    STATIC_ROOT = '/var/www/html/static/'
-else:
-    STATIC_ROOT = '/home/egomez/public_html/static/whatsup'
+STATIC_ROOT = '/var/www/html/static/'
+    
 
 ##### Upload directory for the proposalsubmit app. Also where proposal PDFs are created
 MEDIA_ROOT = os.path.join(CURRENT_PATH, 'media')
@@ -107,9 +101,21 @@ ROOT_URLCONF = 'whatsupapp.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'whatsupapp.wsgi.application'
 
-TEMPLATE_DIRS = (
-    CURRENT_PATH +'/whatsup/templates/',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -119,7 +125,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'south',
     'whatsup'
 )
 
@@ -151,3 +156,9 @@ LOGGING = {
         },
     }
 }
+
+if LOCAL_DEVELOPMENT:
+    try:
+        from local_settings import *
+    except:
+        pass
