@@ -15,7 +15,7 @@ The form/API expects the following querystring parameters:
 Optional querystring parameters are:
 * `enddate` - format must be `YYY-MM-DDTHH:MM:SS` in UTC,
 * `name` - an astronomical object's catalogue name, e.g. M101,
-* `aperture` - size of telescope. Can have values `2m0`, `1m0', or `0m4`.
+* `aperture` - size of telescope. Can have values `2m0`, `1m0`, or `0m4`.
 * `colour` - Not implemented yet. Will return 3 filters and appropriate exposure times.
 * `callback` - for `jsonp` requests
 
