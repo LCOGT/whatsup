@@ -27,7 +27,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from whatsup.models import *
+from whatsup.models import Target
 
 coords = {
     'ogg': {'lat': 20.7075, 'lon': -156.256111},
@@ -210,7 +210,8 @@ def UTtoGST(start):
 
 def eqtohorizon(hour, dec, lat):
     """
-    Convert hour angle, declination of an astronomical source and the latitude of the observer to azimuth and altitude (in degs)
+    Convert hour angle, declination of an astronomical source and the latitude of the observer to azimuth and
+    altitude (in degs)
     """
     dec_rad = dec * pi / 180.
     lat_rad = lat * pi / 180.
@@ -253,6 +254,3 @@ def ra_sun(start):
     x = cos(radians(l_sun))
     ra = degrees(arctan2(y, x)) / 15
     return ra
-
-
-
