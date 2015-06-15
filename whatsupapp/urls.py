@@ -20,7 +20,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('whatsup.views',
     url(r'^$', 'home', name='home'),
-    url(r'search/(?P<format>[^/]+)/$', 'search'),
+    url(r'search/(?P<formatting>[^/]+)/$', 'search'),
     url(r'search/$', 'search'),
     url(r'^admin/', include(admin.site.urls)),
 )
