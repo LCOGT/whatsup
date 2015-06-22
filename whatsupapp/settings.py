@@ -1,5 +1,5 @@
-import os, sys
-import platform
+import os
+import sys
 from django.utils.crypto import get_random_string
 
 TEST = 'test' in sys.argv
@@ -13,7 +13,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-      ('Edward Gomez', 'egomez@lcogt.net'),
+    ('Edward Gomez', 'egomez@lcogt.net'),
 )
 
 MANAGERS = ADMINS
@@ -26,17 +26,17 @@ DATABASES = {
         # Live DB
         "ENGINE": "django.db.backends.mysql",
         "NAME": "neoexchange",
-        "USER": os.environ.get('WHATSUP_DB_USER',''),
-        "PASSWORD": os.environ.get('WHATSUP_DB_PASSWD',''),
-        "HOST": os.environ.get('WHATSUP_DB_HOST',''),
-        "OPTIONS"   : {'init_command': 'SET storage_engine=INNODB'},
+        "USER": os.environ.get('WHATSUP_DB_USER', ''),
+        "PASSWORD": os.environ.get('WHATSUP_DB_PASSWD', ''),
+        "HOST": os.environ.get('WHATSUP_DB_HOST', ''),
+        "OPTIONS": {'init_command': 'SET storage_engine=INNODB'},
 
     }
 }
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.4/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['.lcogt.net','127.0.0.1','.lco.gtn']
+ALLOWED_HOSTS = ['.lcogt.net', '127.0.0.1', '.lco.gtn']
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -65,9 +65,9 @@ STATICFILES_DIRS = []
 STATIC_URL = PREFIX + '/static/'
 
 STATIC_ROOT = '/var/www/html/static/'
-    
 
-##### Upload directory for the proposalsubmit app. Also where proposal PDFs are created
+
+# #### Upload directory for the proposalsubmit app. Also where proposal PDFs are created
 MEDIA_ROOT = os.path.join(CURRENT_PATH, 'media')
 MEDIA_URL = PREFIX + '/media/'
 
@@ -76,14 +76,14 @@ MEDIA_URL = PREFIX + '/media/'
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
+    #     'django.template.loaders.eggs.Loader',
 )
 
 MIDDLEWARE_CLASSES = (

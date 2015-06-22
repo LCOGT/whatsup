@@ -1,8 +1,8 @@
-'''
+"""
 WhatsUP: astronomical object suggestions for Las Cumbres Observatory Global Telescope Network
 Copyright (C) 2014-2015 LCOGT
 
-urls.py 
+urls.py
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -13,14 +13,17 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-'''
+"""
+
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
+
 admin.autodiscover()
 
-urlpatterns = patterns('whatsup.views',
+urlpatterns = patterns(
+    'whatsup.views',
     url(r'^$', 'home', name='home'),
-    url(r'search/(?P<format>[^/]+)/$', 'search'),
+    url(r'search/(?P<formatting>[^/]+)/$', 'search'),
     url(r'search/$', 'search'),
     url(r'^admin/', include(admin.site.urls)),
 )
