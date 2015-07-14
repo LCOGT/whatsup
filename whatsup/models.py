@@ -52,11 +52,12 @@ class Target(models.Model):
     avm_code = models.CharField(max_length=50, null=True, blank=True)
     avm_desc = models.CharField(max_length=50, null=True, blank=True)
     constellation = models.ForeignKey(Constellation, null=True, blank=True)
-    exposure = models.TextField('default exposure time in RVB', default='0')
-    filters = models.TextField('filters using approved LCOGT nomenclature, comma separated', default='r,v,b')
+    exposure = models.TextField('exposure time on 2-meters', default='0')
+    filters = models.TextField('filters using approved LCOGT nomenclature, comma separated', default='rp,v,b')
     best = models.BooleanField("Editor's pick", default=False)
     aperture = models.CharField(max_length=3, choices=APERTURES, default='any')
     project = models.ForeignKey(Project, null=True, blank=True)
+    #owner = models.ForeignKey('auth.User', related_name='targets')
 
     class Meta:
         verbose_name = _('Target')

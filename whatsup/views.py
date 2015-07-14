@@ -22,94 +22,86 @@ from astropy.coordinates import earth_orientation as earth
 from astropy.time import Time
 from astropy import units as u
 from numpy import sin, cos, arcsin, arccos, pi, arctan2, radians, degrees
+from rest_framework import viewsets, filters, generics
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
+from django.conf import settings
 
 from whatsup.models import Target
+from whatsup.serializers import TargetSerializer
 
-coords = {
-    'ogg': {'lat': 20.7075, 'lon': -156.256111},
-    'coj': {'lat': -31.273333, 'lon': 149.071111},
-    'lsc': {'lat': -30.1675, 'lon': -70.804722},
-    'elp': {'lat': 30.67, 'lon': -104.02},
-    'sqa': {'lat': 20.7075, 'lon': -156.256111},
-    'cpt': {'lat': -32.38, 'lon': 20.81},
-    'tfn': {'lat': 28.3, 'lon': -16.51},
-}
+coords = settings.COORDS
 
+class TargetDetail(APIView):
+    """
+    Retrieve, update or delete a target instance.
+    """
+    def get_object(self, pk):
+        try:
+            return target.objects.get(pk=pk)
+        except target.DoesNotExist:
+            raise Http404
 
-def home(request):
-    return render(request, 'home.html', {})
+    def get(self, request, pk, format=None):
+        target = self.get_object(pk)
+        serializer = TargetSerializer(target)
+        return Response(serializer.data)
 
+    def put(self, request, pk, format=None):
+        target = self.get_object(pk)
+        serializer = TargetSerializer(target, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-def search(request, formatting=None):
+    def delete(self, request, pk, format=None):
+        target = self.get_object(pk)
+        target.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class TargetListView(APIView):
+    """
+    A view that returns the list of Targets for a given queryset.
+    """
+    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+
+    def get(self, request, format=None):
+        targets = search_targets(request.query_params)
+        serializer = TargetSerializer(targets, many=True)
+        content = {'targets': serializer.data,'site':request.query_params.get('site',''), 'datetime': request.query_params.get('datetime','')}
+        return Response(content)
+
+def search_targets(query_params):
     error = None
     info = ''
-    site = request.GET.get('site', '')
-    start = request.GET.get('datetime', '')
-    end = request.GET.get('enddate', '')
-    callback = request.GET.get('callback', '')
-    full = request.GET.get('full', '')
-    e1 = None
-    s1 = None
-    name = request.GET.get('name', '')
-    aperture = request.GET.get('aperture', None)
-    if request.GET.get('colour'):
+    site = query_params.get('site', '')
+    start = query_params.get('datetime', '')
+    end = query_params.get('enddate', '')
+    callback = query_params.get('callback', '')
+    full = query_params.get('full', '')
+    s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S") if start else None
+    e1 = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S") if end else None
+    aperture = query_params.get('aperture', None)
+    if query_params.get('colour'):
         colour = True
     else:
         colour = True
-    if name:
-        info = find_target(name)
-        resp = json.dumps(info, indent=2)
-        if callback:
-            resp = "%s([%s])" % (callback, resp)
-        return HttpResponse(resp, content_type="application/json")
-
-    try:
-        s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S")
-    except ValueError:
-        error = "Date/time format must be YYYY-MM-DDTHH:MM:SS"
-    if start and end:
-        try:
-            e1 = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S")
-        except ValueError:
-            error = "End date/time format must be YYYY-MM-DDTHH:MM:SS"
+    if s1 and e1:
+        # Find targets within a date range (i.e. not behind Sun during that time)
+        meandate = s1 + (e1 - s1) / 2
+        targets = targets_not_behind_sun(meandate, aperture)
+        if full != 'true':
+            targets = random.sample(targets, 30)
     else:
-        try:
-            coords[site]
-        except KeyError:
-            error = "Site provided is not official LCOGT site abbreviation. i.e. ogg, coj, cpt, lsc or elp"
-    if not error:
-        if s1 and e1:
-            # Find targets within a date range (i.e. not behind Sun during that time)
-            meandate = s1 + (e1 - s1) / 2
-            targets = targets_not_behind_sun(meandate, aperture)
-            if full != 'true':
-                targets = random.sample(targets, 30)
-        else:
-            # Find targets for only date/time given
-            targets = visible_targets(start, site, aperture, colour)
-        # Package all targets and confirmation of date/time and site selected
-        info = {'site': site,
-                'datetime': start,
-                'targets': targets, }
-        if formatting == 'json':
-            resp = json.dumps(info, indent=2)
-            if callback:
-                resp = "%s([%s])" % (callback, resp)
-            return HttpResponse(resp, content_type="application/json")
-        else:
-            return render(request, 'whatsup/home.html', {"data": info})
-    else:
-        if formatting == 'json':
-            resp = "'error':'%s'" % error
-            if callback:
-                resp = "%s([%s])" % (callback, resp)
-            return HttpResponse(resp, content_type="application/json")
-        else:
-            return render(request, 'home.html', {'data': info, 'error': error})
+        # Find targets for only date/time given
+        targets = visible_targets(start, site, aperture=aperture, colour=colour)
+    return targets
 
 
 def find_target(name):
@@ -137,19 +129,7 @@ def targets_not_behind_sun(start, aperture=None, colour=True):
     tgs = Target.objects.exclude(avm_desc='', ra__gte=start, ra__lte=end)
     if aperture:
         tgs = tgs.filter(aperture=aperture)
-    for t in tgs:
-        params = {'name': t.name,
-                  'ra': t.ra,
-                  'dec': t.dec,
-                  'exp': t.exposure,
-                  'desc': t.description,
-                  'avmdesc': t.avm_desc, }
-        if colour:
-            params['filters'] = t.filters.split(',')[0]
-        else:
-            params['filters'] = t.filters
-        targets.append(params)
-    return targets
+    return tgs
 
 
 def visible_targets(start, site, name=None, aperture=None, colour=True):
@@ -162,30 +142,16 @@ def visible_targets(start, site, name=None, aperture=None, colour=True):
     s0 = float(((lst - 2.) * u.hourangle).to(u.degree) / u.deg)
     e0 = float(((lst + 2.) * u.hourangle).to(u.degree) / u.deg)
     tgs = Target.objects.filter(~Q(avm_desc=''), ra__gte=s0, ra__lte=e0).order_by('avm_desc')
-    if aperture:
+    if aperture and aperture != 'any':
         tgs = tgs.filter(aperture=aperture)
     targets = []
-    # Filter these targets by which are above (horizon + 30deg) for observer
+    # # Filter these targets by which are above (horizon + 30deg) for observer
     for t in tgs:
         hour = lst - float((t.ra * u.deg).to(u.hourangle) / u.hourangle)
         az, alt = eqtohorizon(hour, t.dec, coords[site]['lat'])
         if alt >= 30.:
-            params = {'name': t.name,
-                      'ra': t.ra,
-                      'dec': t.dec,
-                      'exp': t.exposure,
-                      'desc': t.description,
-                      'avmdesc': t.avm_desc,
-                      'alt': alt,
-                      'az': az, }
-            targets.append(params)
-            if colour:
-                params['filters'] = t.filters.split(',')[0]
-            else:
-                params['filters'] = t.filters
-    targets = sorted(targets, key=lambda k: k['alt'])
-    targets.reverse()
-    return targets
+            targets.append(t)
+    return tgs
 
 
 def UTtoGST(start):

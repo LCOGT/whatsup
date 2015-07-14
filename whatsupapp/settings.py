@@ -125,8 +125,16 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
+    'rest_framework',
     'whatsup'
 )
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    )
+}
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -155,6 +163,16 @@ LOGGING = {
             'propagate': True,
         },
     }
+}
+
+COORDS = {
+    'ogg': {'lat': 20.7075, 'lon': -156.256111},
+    'coj': {'lat': -31.273333, 'lon': 149.071111},
+    'lsc': {'lat': -30.1675, 'lon': -70.804722},
+    'elp': {'lat': 30.67, 'lon': -104.02},
+    'sqa': {'lat': 20.7075, 'lon': -156.256111},
+    'cpt': {'lat': -32.38, 'lon': 20.81},
+    'tfn': {'lat': 28.3, 'lon': -16.51},
 }
 
 if LOCAL_DEVELOPMENT:
