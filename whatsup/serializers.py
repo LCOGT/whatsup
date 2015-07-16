@@ -35,23 +35,9 @@ class TargetSerializer(serializers.ModelSerializer):
         model = Target
         fields = ('name', 'ra', 'dec', 'exp', 'desc', 'avmdesc', 'avmcode')
 
-    # def create(self, validated_data):
-    #     exp = validated_data.pop('exp')
-    #     desc = validated_data.pop('desc')
-    #     avmcode = validated_data.pop('avmcode')
-    #     avmdesc = validated_data.pop('avmdesc')
-    #     target = models.Target.objects.create(**validated_data)
-    #     target.exposure = exp
-    #     target.description = desc
-    #     target.avm_code = avmcode
-    #     target.avm_desc = avmdesc
-    #     return target
-
-    # # def create(self, validated_data):
-    # #     """
-    # #     Create and return a new `Target` instance, given the validated data.
-    # #     """
-    # #     return Target.objects.create(**validated_data)
+    def create(self, validated_data):
+        target = Target.objects.create(**validated_data)
+        return target
 
     # def update(self, instance, validated_data):
     #     """

@@ -25,7 +25,7 @@ DATABASES = {
     "default": {
         # Live DB
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "neoexchange",
+        "NAME": os.environ.get('WHATSUP_DB_NAME', ''),
         "USER": os.environ.get('WHATSUP_DB_USER', ''),
         "PASSWORD": os.environ.get('WHATSUP_DB_PASSWD', ''),
         "HOST": os.environ.get('WHATSUP_DB_HOST', ''),
@@ -132,6 +132,7 @@ INSTALLED_APPS = (
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
         'rest_framework.renderers.JSONRenderer',
+        'rest_framework_jsonp.renderers.JSONPRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     )
 }

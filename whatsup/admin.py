@@ -15,7 +15,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 from django.contrib import admin
-from whatsup.models import Target
+from whatsup.models import Target, Project
 
 
 class TargetAdmin(admin.ModelAdmin):
@@ -24,3 +24,4 @@ class TargetAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Target, TargetAdmin)
+admin.site.register(Project)

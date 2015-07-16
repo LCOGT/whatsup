@@ -24,7 +24,7 @@ from . import views
 
 urlpatterns = [
     #url(r'^', include(router.urls)),
-    url(r'search/(?P<formatting>[^/]+)/$', views.TargetListView.as_view(), name="search-formatted"),
+    #url(r'search/(?P<formatting>[^/]+)/$', views.TargetListView.as_view(), name="search-formatted"),
     url(r'search/$', views.TargetListView.as_view(), name="search"),
     url(r'^target/(?P<pk>[0-9]+)/$', views.TargetDetail.as_view()),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))

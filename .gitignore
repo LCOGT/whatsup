@@ -57,3 +57,5 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+
+whatsupapp/local_settings.py

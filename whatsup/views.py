@@ -24,11 +24,13 @@ from astropy import units as u
 from numpy import sin, cos, arcsin, arccos, pi, arctan2, radians, degrees
 from rest_framework import viewsets, filters, generics
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from rest_framework_jsonp.renderers import JSONPRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework import status
 
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render
 from django.conf import settings
 
@@ -43,8 +45,8 @@ class TargetDetail(APIView):
     """
     def get_object(self, pk):
         try:
-            return target.objects.get(pk=pk)
-        except target.DoesNotExist:
+            return Target.objects.get(pk=pk)
+        except Target.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
@@ -69,7 +71,7 @@ class TargetListView(APIView):
     """
     A view that returns the list of Targets for a given queryset.
     """
-    renderer_classes = (JSONRenderer, BrowsableAPIRenderer)
+    renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
 
     def get(self, request, format=None):
         targets = search_targets(request.query_params)
@@ -77,7 +79,16 @@ class TargetListView(APIView):
         content = {'targets': serializer.data,'site':request.query_params.get('site',''), 'datetime': request.query_params.get('datetime','')}
         return Response(content)
 
+    def post(self, request, format=None):
+        serializer = TargetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 def search_targets(query_params):
+    if not query_params:
+        return []
     error = None
     info = ''
     site = query_params.get('site', '')
@@ -128,7 +139,7 @@ def targets_not_behind_sun(start, aperture=None, colour=True):
     end = (ra + 4.) % 24
     tgs = Target.objects.exclude(avm_desc='', ra__gte=start, ra__lte=end)
     if aperture:
-        tgs = tgs.filter(aperture=aperture)
+        tgs = tgs.filter(Q(aperture=aperture)|Q(aperture='any'))
     return tgs
 
 
@@ -142,8 +153,8 @@ def visible_targets(start, site, name=None, aperture=None, colour=True):
     s0 = float(((lst - 2.) * u.hourangle).to(u.degree) / u.deg)
     e0 = float(((lst + 2.) * u.hourangle).to(u.degree) / u.deg)
     tgs = Target.objects.filter(~Q(avm_desc=''), ra__gte=s0, ra__lte=e0).order_by('avm_desc')
-    if aperture and aperture != 'any':
-        tgs = tgs.filter(aperture=aperture)
+    if aperture:
+        tgs = tgs.filter(Q(aperture=aperture)|Q(aperture='any'))
     targets = []
     # # Filter these targets by which are above (horizon + 30deg) for observer
     for t in tgs:

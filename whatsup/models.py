@@ -16,6 +16,7 @@ GNU General Public License for more details.
 """
 from django.db import models
 from django.utils.translation import ugettext as _
+from django.contrib.auth.models import User
 
 APERTURES = (('1m0', '1-meter'), ('2m0', '2-meter'), ('04m', '0.4-meter'), ('any', 'Any'))
 
@@ -57,7 +58,7 @@ class Target(models.Model):
     best = models.BooleanField("Editor's pick", default=False)
     aperture = models.CharField(max_length=3, choices=APERTURES, default='any')
     project = models.ForeignKey(Project, null=True, blank=True)
-    #owner = models.ForeignKey('auth.User', related_name='targets')
+    owner = models.ForeignKey(User, related_name='targets', default=1)
 
     class Meta:
         verbose_name = _('Target')
