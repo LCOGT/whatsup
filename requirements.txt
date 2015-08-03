@@ -6,3 +6,4 @@ ipython
 numpy
 pysqlite==2.6.3
 djangorestframework
+django-filter==0.10.0
