@@ -16,16 +16,14 @@ GNU General Public License for more details.
 """
 
 from django.conf.urls import include, url
-from rest_framework import routers
+
 from . import views
 
-#router = routers.DefaultRouter()
-#router.register(r'search', views.TargetListView)
 
 urlpatterns = [
-    #url(r'^', include(router.urls)),
-    #url(r'search/(?P<formatting>[^/]+)/$', views.TargetListView.as_view(), name="search-formatted"),
-    url(r'search/$', views.TargetListView.as_view(), name="search"),
-    url(r'^target/(?P<pk>[0-9]+)/$', views.TargetDetail.as_view()),
+    # url(r'^', include(router.urls)),
+    # url(r'search/(?P<formatting>[^/]+)/$', views.TargetListView.as_view(), name="search-formatted"),
+    url(r'search/$', views.TargetListView.as_view(), name="api_search"),
+    url(r'^target/(?P<pk>[0-9]+)/$', views.TargetDetail.as_view(), name='api_target_detail'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

@@ -15,34 +15,33 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 from datetime import datetime
-import json
 import random
 
 from astropy.coordinates import earth_orientation as earth
 from astropy.time import Time
 from astropy import units as u
 from numpy import sin, cos, arcsin, arccos, pi, arctan2, radians, degrees
-from rest_framework import viewsets, filters, generics
+
+from django.db.models import Q
+from django.http import Http404
+from django.conf import settings
+
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework_jsonp.renderers import JSONPRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
-
-from django.db.models import Q
-from django.http import HttpResponse, Http404
-from django.shortcuts import render
-from django.conf import settings
-
 from whatsup.models import Target
-from whatsup.serializers import TargetSerializer
+from whatsup.serializers import TargetSerializer, TargetSerializerQuerystring
 
 coords = settings.COORDS
+
 
 class TargetDetail(APIView):
     """
     Retrieve, update or delete a target instance.
     """
+
     def get_object(self, pk):
         try:
             return Target.objects.get(pk=pk)
@@ -67,6 +66,7 @@ class TargetDetail(APIView):
         target.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class TargetListView(APIView):
     """
     A view that returns the list of Targets for a given queryset.
@@ -74,9 +74,14 @@ class TargetListView(APIView):
     renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
 
     def get(self, request, format=None):
+        ser = TargetSerializerQuerystring(data=request.query_params)
+        if not ser.is_valid(raise_exception=True):
+            print(ser.errors)
         targets = search_targets(request.query_params)
         serializer = TargetSerializer(targets, many=True)
-        content = {'targets': serializer.data,'site':request.query_params.get('site',''), 'datetime': request.query_params.get('datetime','')}
+        content = {'targets': serializer.data,
+                   'site': request.query_params.get('site', ''),
+                   'datetime': request.query_params.get('datetime', ''), }
         return Response(content)
 
     def post(self, request, format=None):
@@ -86,11 +91,10 @@ class TargetListView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 def search_targets(query_params):
     if not query_params:
         return []
-    error = None
-    info = ''
     site = query_params.get('site', '')
     start = query_params.get('datetime', '')
     end = query_params.get('enddate', '')
@@ -133,13 +137,12 @@ def find_target(name):
 
 
 def targets_not_behind_sun(start, aperture=None, colour=True):
-    targets = []
     ra = ra_sun(start)
     start = (ra - 4.) % 24
     end = (ra + 4.) % 24
     tgs = Target.objects.exclude(avm_desc='', ra__gte=start, ra__lte=end)
     if aperture:
-        tgs = tgs.filter(Q(aperture=aperture)|Q(aperture='any'))
+        tgs = tgs.filter(Q(aperture=aperture) | Q(aperture='any'))
     return tgs
 
 
@@ -154,7 +157,7 @@ def visible_targets(start, site, name=None, aperture=None, colour=True):
     e0 = float(((lst + 2.) * u.hourangle).to(u.degree) / u.deg)
     tgs = Target.objects.filter(~Q(avm_desc=''), ra__gte=s0, ra__lte=e0).order_by('avm_desc')
     if aperture:
-        tgs = tgs.filter(Q(aperture=aperture)|Q(aperture='any'))
+        tgs = tgs.filter(Q(aperture=aperture) | Q(aperture='any'))
     targets = []
     # # Filter these targets by which are above (horizon + 30deg) for observer
     for t in tgs:
