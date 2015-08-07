@@ -1,3 +1,15 @@
+################################################################################
+#
+# Runs the LCOGT WhatsUP app using nginx + uwsgi
+#
+# Build with
+# docker build -t docker.lcogt.net/whatsup:latest .
+#
+# Push to docker registry with
+# docker push docker.lcogt.net/whatsup:latest
+#
+################################################################################
+
 FROM centos:centos7
 MAINTAINER Ira W. Snyder <isnyder@lcogt.net>
 
