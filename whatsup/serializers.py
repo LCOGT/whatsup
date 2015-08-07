@@ -80,18 +80,6 @@ coords = settings.COORDS
 
 sites = [(name, name) for name in coords.keys()]
 
-
-class CheckParams(object):
-    def __init__(self):
-        pass
-
-    def __call__(self, site, start, end):
-        if site and not start:
-            raise serializers.ValidationError("You must provide start date/time and a site.")
-        elif not end:
-            raise serializers.ValidationError("You must provide an end date/time.")
-
-
 class TargetSerializerQuerystring(serializers.Serializer):
     """
     This serializer is only used to validate querystring parameters in the api.
@@ -101,7 +89,6 @@ class TargetSerializerQuerystring(serializers.Serializer):
     end = serializers.DateTimeField(required=False)
     aperture = serializers.ChoiceField(required=False, choices=APERTURES)
     full = serializers.ChoiceField(required=False, choices=(('true', ''), ('false', ''), ('messier','')))
-    callback = serializers.ChoiceField(required=False, choices=(('jsonp', ''),))
 
     def is_valid(self, raise_exception=True):
         super(TargetSerializerQuerystring, self).is_valid(raise_exception)
