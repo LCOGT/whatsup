@@ -49,11 +49,11 @@ class TargetSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Target
-        fields = ('name', 'ra', 'dec', 'exp', 'desc', 'avmdesc', 'avmcode')
+        fields = ('name', 'ra', 'dec', 'exp', 'desc', 'avmdesc', 'avmcode','aperture')
 
-    def create(self, validated_data):
-        target = Target.objects.create(**validated_data)
-        return target
+    # def create(self, validated_data):
+    #     target = Target.objects.create(**validated_data)
+    #     return target
 
         # def update(self, instance, validated_data):
         #     """
@@ -81,13 +81,33 @@ coords = settings.COORDS
 sites = [(name, name) for name in coords.keys()]
 
 
+class CheckParams(object):
+    def __init__(self):
+        pass
+
+    def __call__(self, site, start, end):
+        if site and not start:
+            raise serializers.ValidationError("You must provide start date/time and a site.")
+        elif not end:
+            raise serializers.ValidationError("You must provide an end date/time.")
+
+
 class TargetSerializerQuerystring(serializers.Serializer):
     """
     This serializer is only used to validate querystring parameters in the api.
     """
-    site = serializers.ChoiceField(choices=sites)
-    datetime = serializers.DateTimeField()
-    enddate = serializers.DateTimeField(required=False)
+    site = serializers.ChoiceField(choices=sites,required=False)
+    start = serializers.DateTimeField()
+    end = serializers.DateTimeField(required=False)
     aperture = serializers.ChoiceField(required=False, choices=APERTURES)
-    full = serializers.ChoiceField(required=False, choices=(('true', ''), ('false', '')))
+    full = serializers.ChoiceField(required=False, choices=(('true', ''), ('false', ''), ('messier','')))
     callback = serializers.ChoiceField(required=False, choices=(('jsonp', ''),))
+
+    def is_valid(self, raise_exception=True):
+        super(TargetSerializerQuerystring, self).is_valid(raise_exception)
+        if self.data.get('site','') and not self.data.get('start',''):
+            raise serializers.ValidationError("You must provide start date/time and a site.")
+        elif self.data.get('start','') and not self.data.get('end','') and not self.data.get('site',''):
+            raise serializers.ValidationError("You must provide an end date/time.")
+
+

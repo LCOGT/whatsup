@@ -24,6 +24,7 @@ urlpatterns = [
     # url(r'^', include(router.urls)),
     # url(r'search/(?P<formatting>[^/]+)/$', views.TargetListView.as_view(), name="search-formatted"),
     url(r'search/$', views.TargetListView.as_view(), name="api_search"),
+    url(r'messier/$', views.TargetListView.as_view(), name="messier_search"),
     url(r'^target/(?P<pk>[0-9]+)/$', views.TargetDetail.as_view(), name='api_target_detail'),
     url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

@@ -81,7 +81,7 @@ class TargetListView(APIView):
         serializer = TargetSerializer(targets, many=True)
         content = {'targets': serializer.data,
                    'site': request.query_params.get('site', ''),
-                   'datetime': request.query_params.get('datetime', ''), }
+                   'datetime': request.query_params.get('start', ''), }
         return Response(content)
 
     def post(self, request, format=None):
@@ -96,8 +96,8 @@ def search_targets(query_params):
     if not query_params:
         return []
     site = query_params.get('site', '')
-    start = query_params.get('datetime', '')
-    end = query_params.get('enddate', '')
+    start = query_params.get('start', '')
+    end = query_params.get('end', '')
     callback = query_params.get('callback', '')
     full = query_params.get('full', '')
     s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S") if start else None
@@ -111,7 +111,9 @@ def search_targets(query_params):
         # Find targets within a date range (i.e. not behind Sun during that time)
         meandate = s1 + (e1 - s1) / 2
         targets = targets_not_behind_sun(meandate, aperture)
-        if full != 'true':
+        if full == 'messier':
+            targets = targets.filter(name__startswith='M')
+        elif full != 'true':
             targets = random.sample(targets, 30)
     else:
         # Find targets for only date/time given

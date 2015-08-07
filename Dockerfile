@@ -16,6 +16,9 @@ RUN yum -y install epel-release \
         && yum -y update \
         && yum -y clean all
 
+COPY requirements.txt /var/www/whatsup/requirements.txt
+RUN pip install -r /var/www/whatsup/requirements.txt
+
 # install configuration
 COPY docker/processes.ini /etc/supervisord.d/
 COPY docker/nginx/* /etc/nginx/
@@ -26,7 +29,6 @@ COPY docker/init /init
 COPY . /var/www/whatsup
 
 # install Python packages
-RUN pip install -r /var/www/whatsup/pip-requirements.txt
 
 # static files
 RUN python /var/www/whatsup/manage.py collectstatic --noinput
