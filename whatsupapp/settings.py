@@ -16,10 +16,8 @@ DEBUG = not PRODUCTION
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
-    ('Edward Gomez', 'egomez@lcogt.net'),
+    #('Edward Gomez', 'egomez@lcogt.net'),
 )
-
-MANAGERS = ADMINS
 
 chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
 SECRET_KEY = get_random_string(50, chars)
