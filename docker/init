@@ -4,5 +4,8 @@
 echo "Running with PREFIX=${PREFIX}"
 sed -i -e "s:@PREFIX@:${PREFIX}:g" /etc/nginx/nginx.conf
 
+# Django static files
+python /var/www/whatsup/manage.py collectstatic --noinput
+
 # Run under supervisord
 exec /usr/bin/supervisord -n -c /etc/supervisord.conf
