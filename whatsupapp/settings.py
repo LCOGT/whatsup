@@ -9,6 +9,7 @@ PREFIX = os.environ.get('PREFIX', '')
 PRODUCTION = True if CURRENT_PATH.startswith('/var/www') else False
 LOCAL_DEVELOPMENT = False if CURRENT_PATH.startswith('/var/www') else True
 
+# Forces the APP to use the prefix, so when we host these apps we don't get funny stuff happening at log in.
 FORCE_SCRIPT_NAME = PREFIX if PRODUCTION else ''
 
 DEBUG = not PRODUCTION
