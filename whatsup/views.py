@@ -28,7 +28,9 @@ from django.conf import settings
 
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework_jsonp.renderers import JSONPRenderer
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework import status
 from whatsup.models import Target
@@ -36,6 +38,11 @@ from whatsup.serializers import TargetSerializer, TargetSerializerQuerystring
 
 coords = settings.COORDS
 
+@api_view(('GET',))
+def api_root(request, format=None):
+    return Response({
+        'search': reverse('api_search', request=request, format=format),
+    })
 
 class TargetDetail(APIView):
     """

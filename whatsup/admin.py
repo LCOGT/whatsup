@@ -15,12 +15,15 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 from django.contrib import admin
-from whatsup.models import Target, Project
+from whatsup.models import Target, Project, Params
 
+class FilterInline(admin.TabularInline):
+    model = Params
 
 class TargetAdmin(admin.ModelAdmin):
     list_display = ['name', 'ra', 'dec', 'description', 'avm_desc']
     list_filter = ['avm_desc']
+    inlines = [FilterInline,]
 
 
 admin.site.register(Target, TargetAdmin)

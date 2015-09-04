@@ -22,6 +22,8 @@ ADMINS = (
 chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
 SECRET_KEY = get_random_string(50, chars)
 
+SESSION_COOKIE_NAME = "whatsup.sessionid"
+
 DATABASES = {
     "default": {
         # Live DB
@@ -119,6 +121,7 @@ TEMPLATES = [
 ]
 
 INSTALLED_APPS = (
+    'django_admin_bootstrapped',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

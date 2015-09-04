@@ -18,38 +18,30 @@ GNU General Public License for more details.
 from django.conf import settings
 
 from rest_framework import serializers
-from models import Target, APERTURES
+from models import Target, Params, APERTURES
 
 
-# class LookupSerializer(serializers.Serializer):
-# datetime = serializers.DateTimeField(required=True, validators=[validate_date,])
-# enddate = serializers.DateTimeField(required=False)
-#     aperture = serializers.CharField(required=False)
-#     site = serializers.CharField()
-
-#     def validate_date(value):
-#         try:
-#             value = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S")
-#         except ValueError:
-#             raise ValidationError("Date/time format must be YYYY-MM-DDTHH:MM:SS")
-#         return value
-
-#     def validate_site(value):
-#         try:
-#             site = settings.COORDS[value]
-#         except KeyError:
-#             raise ValidationError("Site provided is not official LCOGT site abbreviation. i.e. ogg, coj, cpt, lsc or elp")
-#         return site
+class FilterSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='filters')
+    class Meta:
+        model = Params
+        fields = ('exposure','name')
 
 class TargetSerializer(serializers.ModelSerializer):
-    exp = serializers.FloatField(source='exposure')
     desc = serializers.CharField(source='description')
     avmcode = serializers.CharField(source='avm_code')
     avmdesc = serializers.CharField(source='avm_desc')
-
+    filters = FilterSerializer(many=True, source='params')
     class Meta:
         model = Target
-        fields = ('name', 'ra', 'dec', 'exp', 'desc', 'avmdesc', 'avmcode','aperture')
+        fields = ('name', 'ra', 'dec', 'filters', 'desc', 'avmdesc', 'avmcode','aperture')
+
+    def create(self, validated_data):
+        params_data = validated_data.pop('params')
+        target = Target.objects.create(**validated_data)
+        for param_data in params_data:
+            Params.objects.create(target=target, **param_data)
+        return target
 
     # def create(self, validated_data):
     #     target = Target.objects.create(**validated_data)
@@ -96,5 +88,3 @@ class TargetSerializerQuerystring(serializers.Serializer):
             raise serializers.ValidationError("You must provide start date/time and a site.")
         elif self.data.get('start','') and not self.data.get('end','') and not self.data.get('site',''):
             raise serializers.ValidationError("You must provide an end date/time.")
-
-

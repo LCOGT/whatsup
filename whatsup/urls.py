@@ -21,7 +21,7 @@ from . import views
 
 
 urlpatterns = [
-    # url(r'^', include(router.urls)),
+    url(r'^$', views.api_root, name='apiroot'),
     # url(r'search/(?P<formatting>[^/]+)/$', views.TargetListView.as_view(), name="search-formatted"),
     url(r'search/$', views.TargetListView.as_view(), name="api_search"),
     url(r'messier/$', views.TargetListView.as_view(), name="messier_search"),
