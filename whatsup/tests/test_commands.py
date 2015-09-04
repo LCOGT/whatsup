@@ -14,4 +14,4 @@ def test_management_command_load_full_catalogue():
         User.objects.create(username='who')
     call_command('loaddata', 'whatsup/fixtures/full_catalogue.json')
     c = Target.objects.all()
-    assert c.count() == 433
+    assert c.count() == 478
