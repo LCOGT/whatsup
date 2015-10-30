@@ -22,7 +22,7 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.api_root, name='apiroot'),
-    # url(r'search/(?P<formatting>[^/]+)/$', views.TargetListView.as_view(), name="search-formatted"),
+    url(r'search/v2/$', views.AdvTargetListView.as_view(), name="api_v2_search"),
     url(r'search/$', views.TargetListView.as_view(), name="api_search"),
     url(r'messier/$', views.TargetListView.as_view(), name="messier_search"),
     url(r'^target/(?P<pk>[0-9]+)/$', views.TargetDetail.as_view(), name='api_target_detail'),

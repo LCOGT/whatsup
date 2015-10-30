@@ -28,3 +28,4 @@ class TargetAdmin(admin.ModelAdmin):
 
 admin.site.register(Target, TargetAdmin)
 admin.site.register(Project)
+admin.site.register(Params)

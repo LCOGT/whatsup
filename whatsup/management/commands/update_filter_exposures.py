@@ -23,18 +23,28 @@ class Command(BaseCommand):
     help = 'Update all targets to use new Params model instances'
 
     def handle(self, *args, **options):
+        new_filters = {
+                'v':'V',
+                'b':'B',
+                'rp':'R',
+        }
         tgs = Target.objects.all()
         for t in tgs:
             filters = [x.strip() for x in t.filters.split(',')]
-            if t.aperture == 'any' or t.aperture == 'sml':
-                aperture = '1m0'
-            else:
-                aperture = t.aperture
-            for f in filters:
-                if f =='v':
-                    f = 'V'
-                elif f == 'b':
-                    f='B'
-                p = Params(filters=f, exposure=t.exposure,aperture=aperture, target=t)
-                p.save()
-                self.stdout.write('Added %s' % p)
+            if t.aperture == 'any':
+                aperture = {'1m0':3.,'2m0':1.}
+            elif t.aperture == 'sml' or t.aperture == '1m0':
+                aperture = {'1m0':1.}
+            for ap_id, mult in aperture.items():
+                for f in filters:
+                    try:
+                        filterid = new_filters[f]
+                    except:
+                        filterid = f
+                    try:
+                        exp_time = float(t.exposure)*mult
+                    except:
+                        exp_time = 30.
+                    p = Params(filters=filterid, exposure=exp_time,aperture=ap_id , target=t)
+                    p.save()
+                    self.stdout.write('Added %s' % p)

@@ -34,7 +34,7 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework import status
 from whatsup.models import Target
-from whatsup.serializers import TargetSerializer, TargetSerializerQuerystring
+from whatsup.serializers import TargetSerializer, TargetSerializerQuerystring, AdvTargetSerializer
 
 coords = settings.COORDS
 
@@ -73,6 +73,29 @@ class TargetDetail(APIView):
         target.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class AdvTargetListView(APIView):
+    """
+    A view that returns the list of Targets with advanced options for a given queryset.
+    """
+    renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
+
+    def get(self, request, format=None):
+        ser = TargetSerializerQuerystring(data=request.query_params)
+        if not ser.is_valid(raise_exception=True):
+            print(ser.errors)
+        targets = search_targets(request.query_params)
+        serializer = AdvTargetSerializer(targets, many=True)
+        content = {'targets': serializer.data,
+                   'site': request.query_params.get('site', ''),
+                   'datetime': request.query_params.get('start', ''), }
+        return Response(content)
+
+    def post(self, request, format=None):
+        serializer = TargetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TargetListView(APIView):
     """
@@ -151,7 +174,7 @@ def targets_not_behind_sun(start, aperture=None, colour=True):
     end = (ra + 4.) % 24
     tgs = Target.objects.exclude(avm_desc='', ra__gte=start, ra__lte=end)
     if aperture:
-        tgs = tgs.filter(Q(aperture=aperture) | Q(aperture='any'))
+        tgs = tgs.filter(parameters__aperture=aperture)
     return tgs
 
 
@@ -166,7 +189,7 @@ def visible_targets(start, site, name=None, aperture=None, colour=True):
     e0 = float(((lst + 2.) * u.hourangle).to(u.degree) / u.deg)
     tgs = Target.objects.filter(~Q(avm_desc=''), ra__gte=s0, ra__lte=e0).order_by('avm_desc')
     if aperture:
-        tgs = tgs.filter(Q(aperture=aperture) | Q(aperture='any'))
+        tgs = tgs.filter(parameters__aperture=aperture)
     targets = []
     # # Filter these targets by which are above (horizon + 30deg) for observer
     for t in tgs:

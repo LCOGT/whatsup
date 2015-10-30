@@ -15,14 +15,6 @@ class Migration(migrations.Migration):
             name='params',
             options={'ordering': ['target', 'aperture'], 'verbose_name': 'Observation Parameter'},
         ),
-        migrations.RemoveField(
-            model_name='target',
-            name='exposure',
-        ),
-        migrations.RemoveField(
-            model_name='target',
-            name='filters',
-        ),
         migrations.AlterField(
             model_name='params',
             name='aperture',
@@ -31,7 +23,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='params',
             name='target',
-            field=models.ForeignKey(related_name='params', to='whatsup.Target'),
+            field=models.ForeignKey(related_name='parameters', to='whatsup.Target'),
         ),
         migrations.AlterField(
             model_name='target',

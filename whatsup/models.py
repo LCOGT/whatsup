@@ -73,6 +73,8 @@ class Target(models.Model):
     aperture    = models.CharField('Appropriate aperture',max_length=3, choices=APERTURES, default='any')
     project     = models.ForeignKey(Project, null=True, blank=True)
     owner       = models.ForeignKey(User, related_name='targets', default=1)
+    exposure = models.TextField('exposure time on 2-meters', default='0')
+    filters = models.TextField('filters using approved LCOGT nomenclature, comma separated', default='rp,v,b')
 
     class Meta:
         verbose_name = _('Target')
@@ -83,7 +85,7 @@ class Target(models.Model):
         return u"%s" % self.name
 
 class Params(models.Model):
-    target      = models.ForeignKey(Target, related_name='params')
+    target      = models.ForeignKey(Target, related_name='parameters')
     filters     = models.CharField('Filter name', choices=FILTERS, max_length=15)
     exposure    = models.FloatField(default=1)
     aperture    = models.CharField(max_length=3, choices=APERTURES[0:2], default='1m0')

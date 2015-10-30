@@ -20,21 +20,21 @@ from django.conf import settings
 from rest_framework import serializers
 from models import Target, Params, APERTURES
 
-
 class FilterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='filters')
+
     class Meta:
         model = Params
-        fields = ('exposure','name')
+        fields = ('exposure','name', 'aperture')
 
-class TargetSerializer(serializers.ModelSerializer):
+class AdvTargetSerializer(serializers.ModelSerializer):
     desc = serializers.CharField(source='description')
     avmcode = serializers.CharField(source='avm_code')
     avmdesc = serializers.CharField(source='avm_desc')
-    filters = FilterSerializer(many=True, source='params')
+    filters = FilterSerializer(many=True, source='parameters')
     class Meta:
         model = Target
-        fields = ('name', 'ra', 'dec', 'filters', 'desc', 'avmdesc', 'avmcode','aperture')
+        fields = ('name', 'ra', 'dec', 'desc', 'filters', 'avmdesc', 'avmcode','aperture')
 
     def create(self, validated_data):
         params_data = validated_data.pop('params')
@@ -42,6 +42,23 @@ class TargetSerializer(serializers.ModelSerializer):
         for param_data in params_data:
             Params.objects.create(target=target, **param_data)
         return target
+
+
+class TargetSerializer(serializers.ModelSerializer):
+    desc = serializers.CharField(source='description')
+    avmcode = serializers.CharField(source='avm_code')
+    avmdesc = serializers.CharField(source='avm_desc')
+    class Meta:
+        model = Target
+        fields = ('name', 'ra', 'dec', 'filters', 'exposure' ,'desc', 'avmdesc', 'avmcode','aperture')
+
+    def create(self, validated_data):
+        params_data = validated_data.pop('params')
+        target = Target.objects.create(**validated_data)
+        for param_data in params_data:
+            Params.objects.create(target=target, **param_data)
+        return target
+
 
     # def create(self, validated_data):
     #     target = Target.objects.create(**validated_data)
