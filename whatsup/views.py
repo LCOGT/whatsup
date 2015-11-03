@@ -172,6 +172,12 @@ def find_target(name):
 
 
 def filter_targets_with_aperture(targets, aperture):
+    """
+    Filter queryset, prefetch related params while filtering them agains aperture parameter
+    :param targets: Target queryset
+    :param aperture: aperture parameter
+    :return: queryset
+    """
     prefetch = Prefetch('parameters', queryset=Params.objects.filter(aperture=aperture))
     return targets.filter(parameters__aperture=aperture).prefetch_related(prefetch).distinct()
 
