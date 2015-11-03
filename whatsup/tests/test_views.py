@@ -15,8 +15,11 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
+import json
 import pytest
 
+from django.contrib.auth.models import User
+from django.core.management import call_command
 from django.core.urlresolvers import reverse
 
 from rest_framework.test import APIClient
@@ -175,3 +178,17 @@ def test_api_search_page(api_client):
     assert response.status_code == 400
     assert response.data['callback'][0] == '"xml" is not a valid choice.'
 
+
+def test_api_v2(api_client):
+    User.objects.create(username='somebody')  # we need a user because of the fixtures
+    assert User.objects.filter(pk=1)
+
+    call_command('loaddata', 'whatsup/fixtures/full_catalogue.json')
+    response = api_client.get(
+        '/search/v2/?start=2015-10-01T00:00:00&end=2015-10-01T12:00:00&aperture=1m0&full=true')
+    assert response.status_code == 200
+    targets = json.loads(response.content)['targets']
+    assert len(targets) == 478
+
+    # Checking all apertures in filter are `1m0`
+    assert all([[f['aperture'] == '1m0' for f in target['filters']] for target in targets])
