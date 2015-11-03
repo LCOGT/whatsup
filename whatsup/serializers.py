@@ -34,7 +34,7 @@ class AdvTargetSerializer(serializers.ModelSerializer):
     filters = FilterSerializer(many=True, source='parameters')
     class Meta:
         model = Target
-        fields = ('name', 'ra', 'dec', 'desc', 'filters', 'avmdesc', 'avmcode','aperture')
+        fields = ('name', 'ra', 'dec', 'desc', 'filters', 'avmdesc', 'avmcode')
 
     def create(self, validated_data):
         params_data = validated_data.pop('params')

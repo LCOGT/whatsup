@@ -25,6 +25,7 @@ from numpy import sin, cos, arcsin, arccos, pi, arctan2, radians, degrees
 from django.db.models import Q
 from django.http import Http404
 from django.conf import settings
+from django.db.models import Prefetch
 
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework_jsonp.renderers import JSONPRenderer
@@ -33,7 +34,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework import status
-from whatsup.models import Target
+from whatsup.models import Target, Params
 from whatsup.serializers import TargetSerializer, TargetSerializerQuerystring, AdvTargetSerializer
 
 coords = settings.COORDS
@@ -174,7 +175,7 @@ def targets_not_behind_sun(start, aperture=None, colour=True):
     end = (ra + 4.) % 24
     tgs = Target.objects.exclude(avm_desc='', ra__gte=start, ra__lte=end)
     if aperture:
-        tgs = tgs.filter(parameters__aperture=aperture)
+        tgs = tgs.filter(parameters__aperture=aperture).prefetch_related(Prefetch('parameters', queryset=Params.objects.filter(aperture=aperture)))
     return tgs
 
 
@@ -189,7 +190,7 @@ def visible_targets(start, site, name=None, aperture=None, colour=True):
     e0 = float(((lst + 2.) * u.hourangle).to(u.degree) / u.deg)
     tgs = Target.objects.filter(~Q(avm_desc=''), ra__gte=s0, ra__lte=e0).order_by('avm_desc')
     if aperture:
-        tgs = tgs.filter(parameters__aperture=aperture)
+        tgs = tgs.filter(parameters__aperture=aperture).prefetch_related(Prefetch('parameters', queryset=Params.objects.filter(aperture=aperture)))
     targets = []
     # # Filter these targets by which are above (horizon + 30deg) for observer
     for t in tgs:
