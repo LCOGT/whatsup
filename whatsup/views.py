@@ -14,35 +14,36 @@ but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
-from datetime import datetime
 import random
+from datetime import datetime
 
+from astropy import units as u
 from astropy.coordinates import earth_orientation as earth
 from astropy.time import Time
-from astropy import units as u
-from numpy import sin, cos, arcsin, arccos, pi, arctan2, radians, degrees
-
-from django.db.models import Q
-from django.http import Http404
 from django.conf import settings
-
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
-from rest_framework_jsonp.renderers import JSONPRenderer
+from django.db.models import Q, Prefetch
+from django.http import Http404
+from numpy import sin, cos, arcsin, arccos, pi, arctan2, radians, degrees
+from rest_framework import status
 from rest_framework.decorators import api_view
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
-from rest_framework import status
-from whatsup.models import Target
+from rest_framework_jsonp.renderers import JSONPRenderer
+
+from whatsup.models import Target, Params
 from whatsup.serializers import TargetSerializer, TargetSerializerQuerystring, AdvTargetSerializer
 
 coords = settings.COORDS
+
 
 @api_view(('GET',))
 def api_root(request, format=None):
     return Response({
         'search': reverse('api_search', request=request, format=format),
     })
+
 
 class TargetDetail(APIView):
     """
@@ -73,6 +74,7 @@ class TargetDetail(APIView):
         target.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class AdvTargetListView(APIView):
     """
     A view that returns the list of Targets with advanced options for a given queryset.
@@ -96,6 +98,7 @@ class AdvTargetListView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TargetListView(APIView):
     """
@@ -168,13 +171,18 @@ def find_target(name):
     return resp
 
 
+def filter_targets_with_aperture(targets, aperture):
+    prefetch = Prefetch('parameters', queryset=Params.objects.filter(aperture=aperture))
+    return targets.filter(parameters__aperture=aperture).prefetch_related(prefetch).distinct()
+
+
 def targets_not_behind_sun(start, aperture=None, colour=True):
     ra = ra_sun(start)
     start = (ra - 4.) % 24
     end = (ra + 4.) % 24
     tgs = Target.objects.exclude(avm_desc='', ra__gte=start, ra__lte=end)
     if aperture:
-        tgs = tgs.filter(parameters__aperture=aperture)
+        tgs = filter_targets_with_aperture(tgs, aperture)
     return tgs
 
 
@@ -189,7 +197,7 @@ def visible_targets(start, site, name=None, aperture=None, colour=True):
     e0 = float(((lst + 2.) * u.hourangle).to(u.degree) / u.deg)
     tgs = Target.objects.filter(~Q(avm_desc=''), ra__gte=s0, ra__lte=e0).order_by('avm_desc')
     if aperture:
-        tgs = tgs.filter(parameters__aperture=aperture)
+        tgs = filter_targets_with_aperture(tgs, aperture)
     targets = []
     # # Filter these targets by which are above (horizon + 30deg) for observer
     for t in tgs:

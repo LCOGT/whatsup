@@ -16,25 +16,28 @@ GNU General Public License for more details.
 """
 
 from django.conf import settings
-
 from rest_framework import serializers
+
 from models import Target, Params, APERTURES
+
 
 class FilterSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='filters')
 
     class Meta:
         model = Params
-        fields = ('exposure','name', 'aperture')
+        fields = ('exposure', 'name', 'aperture')
+
 
 class AdvTargetSerializer(serializers.ModelSerializer):
     desc = serializers.CharField(source='description')
     avmcode = serializers.CharField(source='avm_code')
     avmdesc = serializers.CharField(source='avm_desc')
     filters = FilterSerializer(many=True, source='parameters')
+
     class Meta:
         model = Target
-        fields = ('name', 'ra', 'dec', 'desc', 'filters', 'avmdesc', 'avmcode','aperture')
+        fields = ('name', 'ra', 'dec', 'desc', 'filters', 'avmdesc', 'avmcode', 'aperture')
 
     def create(self, validated_data):
         params_data = validated_data.pop('params')
@@ -48,9 +51,10 @@ class TargetSerializer(serializers.ModelSerializer):
     desc = serializers.CharField(source='description')
     avmcode = serializers.CharField(source='avm_code')
     avmdesc = serializers.CharField(source='avm_desc')
+
     class Meta:
         model = Target
-        fields = ('name', 'ra', 'dec', 'filters', 'exposure' ,'desc', 'avmdesc', 'avmcode','aperture')
+        fields = ('name', 'ra', 'dec', 'filters', 'exposure', 'desc', 'avmdesc', 'avmcode', 'aperture')
 
     def create(self, validated_data):
         params_data = validated_data.pop('params')
@@ -60,48 +64,24 @@ class TargetSerializer(serializers.ModelSerializer):
         return target
 
 
-    # def create(self, validated_data):
-    #     target = Target.objects.create(**validated_data)
-    #     return target
-
-        # def update(self, instance, validated_data):
-        #     """
-        #     Update and return an existing `Target` instance, given the validated data.
-        #     """
-        #     instance.name = validated_data.get('name', instance.name)
-        #     instance.ra = validated_data.get('ra', instance.ra)
-        #     instance.dec = validated_data.get('dec', instance.dec)
-        #     instance.exp = validated_data.get('exp', instance.exp)
-        #     instance.desc = validated_data.get('desc', instance.desc)
-        #     instance.avmdesc = validated_data.get('avmdesc', instance.avmdesc)
-        #     instance.avmcode = validated_data.get('avmcode', instance.avmcode)
-
-        #     instance.save()
-        #     return instance
-
-        # def init(self, *args, **kwargs):
-        #     super(TargetSerializer, self).__init__(*args, **kwargs)
-        #     self.fields['site'].validators.append(validate_site)
-        #     self.fields['date'].validators.append(validate_date)
-
-
 coords = settings.COORDS
 
 sites = [(name, name) for name in coords.keys()]
+
 
 class TargetSerializerQuerystring(serializers.Serializer):
     """
     This serializer is only used to validate querystring parameters in the api.
     """
-    site = serializers.ChoiceField(choices=sites,required=False)
+    site = serializers.ChoiceField(choices=sites, required=False)
     start = serializers.DateTimeField()
     end = serializers.DateTimeField(required=False)
     aperture = serializers.ChoiceField(required=False, choices=APERTURES)
-    full = serializers.ChoiceField(required=False, choices=(('true', ''), ('false', ''), ('messier','')))
+    full = serializers.ChoiceField(required=False, choices=(('true', ''), ('false', ''), ('messier', '')))
 
     def is_valid(self, raise_exception=True):
         super(TargetSerializerQuerystring, self).is_valid(raise_exception)
-        if self.data.get('site','') and not self.data.get('start',''):
+        if self.data.get('site', '') and not self.data.get('start', ''):
             raise serializers.ValidationError("You must provide start date/time and a site.")
-        elif self.data.get('start','') and not self.data.get('end','') and not self.data.get('site',''):
+        elif self.data.get('start', '') and not self.data.get('end', '') and not self.data.get('site', ''):
             raise serializers.ValidationError("You must provide an end date/time.")
