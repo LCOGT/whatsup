@@ -23,7 +23,7 @@ from astropy.time import Time
 from django.conf import settings
 from django.db.models import Q, Prefetch
 from django.http import Http404
-from numpy import sin, cos, arcsin, arccos, pi, arctan2, radians, degrees
+from numpy import sin, cos, arcsin, arccos, pi, arctan2, radians, degrees, floor
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
@@ -34,6 +34,7 @@ from rest_framework_jsonp.renderers import JSONPRenderer
 
 from whatsup.models import Target, Params
 from whatsup.serializers import TargetSerializer, TargetSerializerQuerystring, AdvTargetSerializer
+from .utils import calc_lst, ra_sun, eqtohorizon
 
 coords = settings.COORDS
 
@@ -171,17 +172,6 @@ def find_target(name):
     return resp
 
 
-def filter_targets_with_aperture(targets, aperture):
-    """
-    Filter queryset, prefetch related params while filtering them agains aperture parameter
-    :param targets: Target queryset
-    :param aperture: aperture parameter
-    :return: queryset
-    """
-    prefetch = Prefetch('parameters', queryset=Params.objects.filter(aperture=aperture))
-    return targets.filter(parameters__aperture=aperture).prefetch_related(prefetch).distinct()
-
-
 def targets_not_behind_sun(start, aperture=None, colour=True):
     ra = ra_sun(start)
     start = (ra - 4.) % 24
@@ -213,70 +203,12 @@ def visible_targets(start, site, name=None, aperture=None, colour=True):
             targets.append(t)
     return tgs
 
-
-def UTtoGST(start):
+def filter_targets_with_aperture(targets, aperture):
     """
-    Convert UT to Greenwich Siderial Time
+    Filter queryset, prefetch related params while filtering them agains aperture parameter
+    :param targets: Target queryset
+    :param aperture: aperture parameter
+    :return: queryset
     """
-    t1 = Time(start, scale='utc')
-    s = t1.jd - 2451545.000
-    t = s / 36525.000
-    t0 = 6.697374558 + (2400.051336 * t) + (0.000025862 * (t * t))
-    t0 = (t0 - int(t0 / 24.) * 24)
-    if t0 < 0.0:
-        t0 += 24.
-    ut = 1.002737909 * t1.datetime.hour
-    tmp = int((ut + t0) / 24.)
-    gst = ut + t0 - tmp * 24.
-    gst_hour = int(gst)
-    gst_min = int((gst - gst_hour) * 60.)
-    gst_sec = int((gst - gst_hour - gst_min / 60.) * 3600.)
-    return gst
-
-
-def eqtohorizon(hour, dec, lat):
-    """
-    Convert hour angle, declination of an astronomical source and the latitude of the observer to azimuth and
-    altitude (in degs)
-    """
-    dec_rad = dec * pi / 180.
-    lat_rad = lat * pi / 180.
-    h_rad = hour * pi / 180.
-    sin_alt = sin(dec_rad) * sin(lat_rad) + cos(dec_rad) * cos(lat_rad) * cos(h_rad)
-    alt_rad = arcsin(sin_alt)
-    cos_az = (sin(dec_rad) - sin(lat_rad) * sin_alt) / (cos(lat_rad) * cos(alt_rad))
-    return arccos(cos_az) * 180. / pi, alt_rad * 180. / pi
-
-
-def calc_lst(start, site):
-    """
-    Calculate local siderial time at a given location and at a specific date/time
-    """
-    tel_long_deg = coords[site]['lon']
-    sid = UTtoGST(start)
-    lst_hours = sid + tel_long_deg / 15.
-    lst_hours = lst_hours % 24.
-    lst_hr = int(lst_hours)
-    lst_min = int((lst_hours - lst_hr) * 60.)
-    lst_sec = int((lst_hours - lst_hr - lst_min / 60.) * 3600.)
-    return lst_hours
-
-
-def ra_sun(start):
-    # days since 1 Jan 2010 Epoch
-    t = Time(start, scale='utc')
-    d = (start - datetime(2010, 1, 1)).days
-    eg = 279.557208  # ecliptic longitude at epoch 2010
-    wg = 283.112438  # ecliptic longitude of perigee at epoch 2010
-    e = 0.016705  # eccentricity at 2010 epoch
-    N = (360. / 365.242191) * d % 360
-    m_sun = N + eg + wg
-    if m_sun < 0:
-        m_sun += 360.
-    Ec = (360. / pi) * e * sin(radians(m_sun))
-    l_sun = N + Ec + eg
-    obliquity = earth.obliquity(t.jd, algorithm=1980)
-    y = sin(radians(l_sun)) * cos(radians(obliquity))
-    x = cos(radians(l_sun))
-    ra = degrees(arctan2(y, x)) / 15
-    return ra
+    prefetch = Prefetch('parameters', queryset=Params.objects.filter(aperture=aperture))
+    return targets.filter(parameters__aperture=aperture).prefetch_related(prefetch).distinct()
