@@ -51,10 +51,11 @@ class TargetSerializer(serializers.ModelSerializer):
     desc = serializers.CharField(source='description')
     avmcode = serializers.CharField(source='avm_code')
     avmdesc = serializers.CharField(source='avm_desc')
+    exp = serializers.CharField(source='exposure')
 
     class Meta:
         model = Target
-        fields = ('name', 'ra', 'dec', 'filters', 'exposure', 'desc', 'avmdesc', 'avmcode', 'aperture')
+        fields = ('name', 'ra', 'dec', 'filters', 'exp', 'desc', 'avmdesc', 'avmcode', 'aperture')
 
     def create(self, validated_data):
         params_data = validated_data.pop('params')
