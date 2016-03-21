@@ -2,6 +2,8 @@ import os
 import sys
 from django.utils.crypto import get_random_string
 
+VERSION = 1.1
+
 TEST = 'test' in sys.argv
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 BASE_DIR = os.path.dirname(CURRENT_PATH)
@@ -13,7 +15,6 @@ LOCAL_DEVELOPMENT = False if CURRENT_PATH.startswith('/var/www') else True
 FORCE_SCRIPT_NAME = PREFIX if PRODUCTION else ''
 
 DEBUG = not PRODUCTION
-TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     #('Edward Gomez', 'egomez@lcogt.net'),
@@ -82,12 +83,6 @@ STATICFILES_FINDERS = (
     #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    #     'django.template.loaders.eggs.Loader',
-)
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -122,8 +117,8 @@ TEMPLATES = [
 
 INSTALLED_APPS = (
     'django_admin_bootstrapped',
-    'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.auth',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',

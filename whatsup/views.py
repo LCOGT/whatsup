@@ -36,6 +36,10 @@ from whatsup.models import Target, Params
 from whatsup.serializers import TargetSerializer, TargetSerializerQuerystring, AdvTargetSerializer
 from .utils import calc_lst, ra_sun, eqtohorizon
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 coords = settings.COORDS
 
 
@@ -85,7 +89,7 @@ class AdvTargetListView(APIView):
     def get(self, request, format=None):
         ser = TargetSerializerQuerystring(data=request.query_params)
         if not ser.is_valid(raise_exception=True):
-            print(ser.errors)
+            logger.error(ser.errors)
         targets = search_targets(request.query_params)
         serializer = AdvTargetSerializer(targets, many=True)
         content = {'targets': serializer.data,
@@ -94,7 +98,7 @@ class AdvTargetListView(APIView):
         return Response(content)
 
     def post(self, request, format=None):
-        serializer = TargetSerializer(data=request.data)
+        serializer = AdvTargetSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -110,7 +114,7 @@ class TargetListView(APIView):
     def get(self, request, format=None):
         ser = TargetSerializerQuerystring(data=request.query_params)
         if not ser.is_valid(raise_exception=True):
-            print(ser.errors)
+            logger.error(ser.errors)
         targets = search_targets(request.query_params)
         serializer = TargetSerializer(targets, many=True)
         content = {'targets': serializer.data,
@@ -148,7 +152,8 @@ def search_targets(query_params):
         if full == 'messier':
             targets = targets.filter(name__startswith='M')
         elif full != 'true':
-            targets = random.sample(targets, 30)
+            if targets.count() > 30:
+                targets = random.sample(targets, 30)
     else:
         # Find targets for only date/time given
         targets = visible_targets(start, site, aperture=aperture, colour=colour)
@@ -200,6 +205,9 @@ def visible_targets(start, site, name=None, aperture=None, colour=True):
         hour = lst - float((t.ra * u.deg).to(u.hourangle) / u.hourangle)
         az, alt = eqtohorizon(hour, t.dec, coords[site]['lat'])
         if alt >= 30.:
+            if aperture in ['0m4','1m0'] and (hour > 4.5 and hour < 5.5):
+                # Hour angle limit of 5 for equatorial mounts
+                continue
             targets.append(t)
     return tgs
 

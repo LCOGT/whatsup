@@ -18,7 +18,7 @@ GNU General Public License for more details.
 from django.conf import settings
 from rest_framework import serializers
 
-from models import Target, Params, APERTURES
+from models import Target, Params, APERTURES, FILTERS
 
 
 class FilterSerializer(serializers.ModelSerializer):
@@ -40,10 +40,15 @@ class AdvTargetSerializer(serializers.ModelSerializer):
         fields = ('name', 'ra', 'dec', 'desc', 'filters', 'avmdesc', 'avmcode')
 
     def create(self, validated_data):
-        params_data = validated_data.pop('params')
+        params_data = validated_data.pop('parameters')
         target = Target.objects.create(**validated_data)
         for param_data in params_data:
-            Params.objects.create(target=target, **param_data)
+            ser = ParamSerializer(data=param_data)
+            if ser.is_valid():
+                ser.save()
+            elif not ser.is_valid(raise_exception=True):
+                target.delete()
+            # Params.objects.create(target=target, **param_data)
         return target
 
 
@@ -57,12 +62,14 @@ class TargetSerializer(serializers.ModelSerializer):
         model = Target
         fields = ('name', 'ra', 'dec', 'filters', 'exp', 'desc', 'avmdesc', 'avmcode', 'aperture')
 
-    def create(self, validated_data):
-        params_data = validated_data.pop('params')
-        target = Target.objects.create(**validated_data)
-        for param_data in params_data:
-            Params.objects.create(target=target, **param_data)
-        return target
+
+class ParamSerializer(serializers.Serializer):
+    """
+    This serializer is only used to validate querystring parameters in the api.
+    """
+    filters = serializers.ChoiceField(choices=FILTERS)
+    aperture = serializers.ChoiceField(choices=APERTURES)
+    exposure = serializers.FloatField()
 
 
 coords = settings.COORDS

@@ -24,17 +24,17 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         new_filters = {
-                'v':'V',
+                'v':'gp',
                 'b':'B',
                 'rp':'R',
         }
-        tgs = Target.objects.all()
+        tgs = Target.objects.filter(aperture__in=['any','sml'])
         for t in tgs:
             filters = [x.strip() for x in t.filters.split(',')]
             if t.aperture == 'any':
-                aperture = {'1m0':3.,'2m0':1.}
-            elif t.aperture == 'sml' or t.aperture == '1m0':
-                aperture = {'1m0':1.}
+                aperture = {'0m4':4.}
+            elif t.aperture == 'sml':
+                aperture = {'0m4':1.5}
             for ap_id, mult in aperture.items():
                 for f in filters:
                     try:

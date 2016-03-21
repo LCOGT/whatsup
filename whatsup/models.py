@@ -20,7 +20,7 @@ from django.db import models
 from django.utils.translation import ugettext as _
 
 APERTURES = (
-    ('1m0', '1-meter'), ('2m0', '2-meter'), ('04m', '0.4-meter'), ('any', 'Any'), ('sml', ' 1m and 0.4m only'))
+    ('1m0', '1-meter'), ('2m0', '2-meter'), ('0m4', '0.4-meter'), ('any', 'Any'), ('sml', ' 1m and 0.4m only'))
 
 FILTERS = (('B', 'Bessell-B'),
            ('I', 'Bessell-I'),
