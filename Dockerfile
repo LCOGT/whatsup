@@ -1,16 +1,4 @@
-################################################################################
-#
-# Runs the LCOGT WhatsUP app using nginx + uwsgi
-#
-# Build with
-# docker build -t docker.lcogt.net/whatsup:latest .
-#
-# Push to docker registry with
-# docker push docker.lcogt.net/whatsup:latest
-#
-################################################################################
-
-FROM centos:centos7
+FROM centos:7
 MAINTAINER Ira W. Snyder <isnyder@lcogt.net>
 
 EXPOSE 80
@@ -25,14 +13,15 @@ ENV PREFIX /whatsup
 
 # install and update packages
 RUN yum -y install epel-release \
-        && yum -y install gcc make mysql-devel python-devel python-pip sqlite-devel \
-        && yum -y install nginx supervisor \
+        && yum -y install MySQL-python python-pip nginx supervisor uwsgi-plugin-python \
         && yum -y update \
         && yum -y clean all
 
 # install python requirements
 COPY requirements.txt /var/www/whatsup/requirements.txt
-RUN pip install uwsgi==2.0.8 && pip install -r /var/www/whatsup/requirements.txt
+RUN pip install --upgrade pip \
+        && pip install -r /var/www/whatsup/requirements.txt \
+        && rm -rf /root/.cache /root/.pip
 
 # install configuration
 COPY docker/processes.ini /etc/supervisord.d/
