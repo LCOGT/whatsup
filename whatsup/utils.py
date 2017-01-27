@@ -18,7 +18,7 @@ def eqtohorizon(hour, dec, lat):
     """
     dec_rad = dec * pi / 180.
     lat_rad = lat * pi / 180.
-    h_rad = hour * pi / 180.
+    h_rad = hour * pi / 12.
     sin_alt = sin(dec_rad) * sin(lat_rad) + cos(dec_rad) * cos(lat_rad) * cos(h_rad)
     alt_rad = arcsin(sin_alt)
     cos_az = (sin(dec_rad) - sin(lat_rad) * sin_alt) / (cos(lat_rad) * cos(alt_rad))

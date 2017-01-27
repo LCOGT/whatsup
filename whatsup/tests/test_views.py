@@ -16,7 +16,6 @@ GNU General Public License for more details.
 """
 import json
 
-import json
 import pytest
 
 from django.contrib.auth.models import User
@@ -26,6 +25,7 @@ from rest_framework.test import APIClient
 
 from .factories import TargetFactory
 from ..models import Target
+
 
 pytestmark = pytest.mark.django_db  # Explicit db access authorization
 
