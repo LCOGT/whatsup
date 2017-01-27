@@ -38,6 +38,16 @@ FILTERS = (('B', 'Bessell-B'),
            ('solar', 'Solar (V+R)')
            )
 
+CATEGORIES = (('3.6.4.1', 'Open Cluster'),
+                ('3.6.4.2', 'Globular Cluster'),
+                ('4', 'Nebula'),
+                ('4.1.3', 'Planetary Nebula'),
+                ('4.1.4', 'Supernova Remnant'),
+                ('5','Galaxy'),
+                ('5.1.1', 'Spiral Galaxy'),
+                ('5.1.4', 'Elliptical Galaxy'),
+                ('5.1.6', 'Interacting Galaxies'),
+                )
 
 class Constellation(models.Model):
     name = models.CharField(max_length=20)

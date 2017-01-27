@@ -94,7 +94,8 @@ class AdvTargetListView(APIView):
         serializer = AdvTargetSerializer(targets, many=True)
         content = {'targets': serializer.data,
                    'site': request.query_params.get('site', ''),
-                   'datetime': request.query_params.get('start', ''), }
+                   'datetime': request.query_params.get('start', ''),
+                   'count' : len(targets)}
         return Response(content)
 
     def post(self, request, format=None):
@@ -119,7 +120,8 @@ class TargetListView(APIView):
         serializer = TargetSerializer(targets, many=True)
         content = {'targets': serializer.data,
                    'site': request.query_params.get('site', ''),
-                   'datetime': request.query_params.get('start', ''), }
+                   'datetime': request.query_params.get('start', ''),
+                   }
         return Response(content)
 
     def post(self, request, format=None):
@@ -138,6 +140,7 @@ def search_targets(query_params):
     end = query_params.get('end', '')
     callback = query_params.get('callback', '')
     full = query_params.get('full', '')
+    category = query_params.get('category', '')
     s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S") if start else None
     e1 = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S") if end else None
     aperture = query_params.get('aperture', None)
@@ -148,7 +151,7 @@ def search_targets(query_params):
     if s1 and e1:
         # Find targets within a date range (i.e. not behind Sun during that time)
         meandate = s1 + (e1 - s1) / 2
-        targets = targets_not_behind_sun(meandate, aperture)
+        targets = targets_not_behind_sun(start=meandate, aperture=aperture, category=category)
         if full == 'messier':
             targets = targets.filter(name__startswith='M')
         elif full != 'true':
@@ -156,7 +159,7 @@ def search_targets(query_params):
                 targets = random.sample(targets, 30)
     else:
         # Find targets for only date/time given
-        targets = visible_targets(start, site, aperture=aperture, colour=colour)
+        targets = visible_targets(start, site, aperture=aperture, colour=colour, category=category)
     return targets
 
 
@@ -177,17 +180,19 @@ def find_target(name):
     return resp
 
 
-def targets_not_behind_sun(start, aperture=None, colour=True):
+def targets_not_behind_sun(start, aperture=None, colour=True, category=None):
     ra = ra_sun(start)
     start = (ra - 4.) % 24
     end = (ra + 4.) % 24
     tgs = Target.objects.exclude(avm_desc='', ra__gte=start, ra__lte=end)
     if aperture:
         tgs = filter_targets_with_aperture(tgs, aperture)
+    if category:
+        tgs = tgs.filter(avm_code__startswith=category)
     return tgs
 
 
-def visible_targets(start, site, name=None, aperture=None, colour=True):
+def visible_targets(start, site, name=None, aperture=None, colour=True, category=None):
     """
     Produce a list of targets which visible to observer at specified date/time
     """
@@ -199,6 +204,8 @@ def visible_targets(start, site, name=None, aperture=None, colour=True):
     tgs = Target.objects.filter(~Q(avm_desc=''), ra__gte=s0, ra__lte=e0).order_by('avm_desc')
     if aperture:
         tgs = filter_targets_with_aperture(tgs, aperture)
+    if category:
+        tgs = tgs.filter(avm_code__startswith=category)
     targets = []
     # # Filter these targets by which are above (horizon + 30deg) for observer
     for t in tgs:

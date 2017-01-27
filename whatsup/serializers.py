@@ -18,7 +18,7 @@ GNU General Public License for more details.
 from django.conf import settings
 from rest_framework import serializers
 
-from models import Target, Params, APERTURES, FILTERS
+from models import Target, Params, APERTURES, FILTERS, CATEGORIES
 
 
 class FilterSerializer(serializers.ModelSerializer):
@@ -86,6 +86,7 @@ class TargetSerializerQuerystring(serializers.Serializer):
     end = serializers.DateTimeField(required=False)
     aperture = serializers.ChoiceField(required=False, choices=APERTURES)
     full = serializers.ChoiceField(required=False, choices=(('true', ''), ('false', ''), ('messier', '')))
+    category = serializers.ChoiceField(required=False, choices=CATEGORIES)
 
     def is_valid(self, raise_exception=True):
         super(TargetSerializerQuerystring, self).is_valid(raise_exception)
