@@ -3,7 +3,7 @@ Whats UP
 
 Find what astronomical objects are visible above LCOGT sites from an curated list.
 
-* [/whatsup](http://lcogt.net/whatsup) - Where the application is currently running. This is a very basic form because most interaction is via API
+* [/whatsup](http://lco.global/whatsup) - Where the application is currently running. This is a very basic form because most interaction is via API
 
 V1 Options
 -------

@@ -33,7 +33,7 @@ def test_alt_calc_coj():
     assert alt == 40.130620483063822
 
 def test_alt_calc_ogg():
-    # Check altitude of eta Car from coj
+    # Check altitude of target from OGG
     dt = datetime.datetime(2017, 1, 27, 12, 9, 15, 350624)
     site = 'ogg'
     lst = calc_lst(dt,site)
