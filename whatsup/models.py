@@ -101,7 +101,7 @@ class Params(models.Model):
     target = models.ForeignKey(Target, related_name='parameters')
     filters = models.CharField('Filter name', choices=FILTERS, max_length=15)
     exposure = models.FloatField(default=1)
-    aperture = models.CharField(max_length=3, choices=APERTURES[0:2], default='1m0')
+    aperture = models.CharField(max_length=3, choices=APERTURES, default='1m0')
 
     class Meta:
         verbose_name = _('Observation Parameter')
