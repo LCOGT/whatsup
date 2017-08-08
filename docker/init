@@ -6,7 +6,7 @@ sed -i -e "s:@PREFIX@:${PREFIX}:g" /etc/nginx/nginx.conf
 
 # Perform migrations and pull in fixtures
 python /var/www/whatsup/manage.py migrate --noinput
-python /var/www/whatsup/manage.py loaddata full_catalogue.json
+#python /var/www/whatsup/manage.py loaddata full_catalogue.json
 
 # Django static files
 python /var/www/whatsup/manage.py collectstatic --noinput

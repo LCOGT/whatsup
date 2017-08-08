@@ -199,8 +199,8 @@ def visible_targets(start, site, name=None, aperture=None, colour=True, category
     # start=  "2014-07-21T14:00:00"
     # Find which targets are in the correct RA range, i.e. LST +/-2hours
     lst = calc_lst(start, site)
-    s0 = float(((lst - 2.) * u.hourangle).to(u.degree) / u.deg)
-    e0 = float(((lst + 2.) * u.hourangle).to(u.degree) / u.deg)
+    s0 = float(((lst - 3.5) * u.hourangle).to(u.degree) / u.deg)
+    e0 = float(((lst + 3.5) * u.hourangle).to(u.degree) / u.deg)
     tgs = Target.objects.filter(~Q(avm_desc=''), ra__gte=s0, ra__lte=e0).order_by('avm_desc')
     if aperture:
         tgs = filter_targets_with_aperture(tgs, aperture)
@@ -212,11 +212,8 @@ def visible_targets(start, site, name=None, aperture=None, colour=True, category
         hour = lst - float((t.ra * u.deg).to(u.hourangle) / u.hourangle)
         az, alt = eqtohorizon(hour, t.dec, coords[site]['lat'])
         if alt >= 30.:
-            if aperture in ['0m4','1m0'] and (hour > 4.5 and hour < 5.5):
-                # Hour angle limit of 5 for equatorial mounts
-                continue
             targets.append(t)
-    return tgs
+    return targets
 
 def filter_targets_with_aperture(targets, aperture):
     """
