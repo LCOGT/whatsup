@@ -33,7 +33,8 @@ from rest_framework.views import APIView
 from rest_framework_jsonp.renderers import JSONPRenderer
 
 from whatsup.models import Target, Params
-from whatsup.serializers import TargetSerializer, TargetSerializerQuerystring, AdvTargetSerializer
+from whatsup.serializers import TargetSerializer, TargetSerializerQuerystring, \
+    AdvTargetSerializer, RangeTargetSerializerQuerystring
 from .utils import calc_lst, ra_sun, eqtohorizon
 
 import logging
@@ -80,9 +81,14 @@ class TargetDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class AdvTargetListView(APIView):
+class TargetListView(APIView):
     """
-    A view that returns the list of Targets with advanced options for a given queryset.
+    Returns the list of Targets with filters applied:
+    :param: start (required) - YYYY-MM-DDTHH:MM:SS
+    :param: site (required) - LCO 3-letter site code
+    :param: aperture (required) - LCO 3-letter telescope class
+    :param: full (optional) - Show full or truncated list of results, true/false
+    :param: category (optional) - filter by AVM category of target
     """
     renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
 
@@ -105,34 +111,44 @@ class AdvTargetListView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class TargetListView(APIView):
+class TargetListRangeView(APIView):
     """
-    A view that returns the list of Targets for a given queryset.
+    Return targets visible in northern and southern hemisphere during time range
+        :param: start (required) - YYYY-MM-DDTHH:MM:SS
+        :param: end (required) - YYYY-MM-DDTHH:MM:SS
+        :param: aperture (required) - LCO 3-letter telescope class
+        :param: full (optional) - Show full or truncated list of results, true/false
+        :param: category (optional) - filter by AVM category of target
     """
     renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
 
     def get(self, request, format=None):
-        ser = TargetSerializerQuerystring(data=request.query_params)
+        ser = RangeTargetSerializerQuerystring(data=request.query_params)
         if not ser.is_valid(raise_exception=True):
             logger.error(ser.errors)
-        targets = search_targets(request.query_params)
-        serializer = TargetSerializer(targets, many=True)
+        targets = range_targets(request.query_params)
+        serializer = AdvTargetSerializer(targets, many=True)
         content = {'targets': serializer.data,
                    'site': request.query_params.get('site', ''),
                    'datetime': request.query_params.get('start', ''),
-                   }
+                   'count' : len(targets)}
         return Response(content)
-
-    def post(self, request, format=None):
-        serializer = TargetSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 def search_targets(query_params):
+    if not query_params:
+        return []
+    site = query_params.get('site', '')
+    start = query_params.get('start', '')
+    callback = query_params.get('callback', '')
+    full = query_params.get('full', '')
+    category = query_params.get('category', '')
+    s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S")
+    aperture = query_params.get('aperture', None)
+    targets = visible_targets(start, site, aperture=aperture, category=category)
+    return targets
+
+def range_targets(query_params):
     if not query_params:
         return []
     site = query_params.get('site', '')
@@ -141,27 +157,18 @@ def search_targets(query_params):
     callback = query_params.get('callback', '')
     full = query_params.get('full', '')
     category = query_params.get('category', '')
-    s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S") if start else None
-    e1 = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S") if end else None
+    s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S")
+    e1 = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S")
     aperture = query_params.get('aperture', None)
-    if query_params.get('colour'):
-        colour = True
-    else:
-        colour = True
-    if s1 and e1:
-        # Find targets within a date range (i.e. not behind Sun during that time)
-        meandate = s1 + (e1 - s1) / 2
-        targets = targets_not_behind_sun(start=meandate, aperture=aperture, category=category)
-        if full == 'messier':
-            targets = targets.filter(name__startswith='M')
-        elif full != 'true':
-            if targets.count() > 30:
-                targets = random.sample(targets, 30)
-    else:
-        # Find targets for only date/time given
-        targets = visible_targets(start, site, aperture=aperture, colour=colour, category=category)
+    # Find targets within a date range (i.e. not behind Sun during that time)
+    meandate = s1 + (e1 - s1) / 2
+    targets = targets_not_behind_sun(start=meandate, aperture=aperture, category=category)
+    if full == 'messier':
+        targets = targets.filter(name__startswith='M')
+    elif full != 'true':
+        if targets.count() > 30:
+            targets = random.sample(targets, 30)
     return targets
-
 
 def find_target(name):
     t = Target.objects.filter(name__icontains=name)
@@ -180,7 +187,7 @@ def find_target(name):
     return resp
 
 
-def targets_not_behind_sun(start, aperture=None, colour=True, category=None):
+def targets_not_behind_sun(start, aperture=None, category=None):
     ra = ra_sun(start)
     start = (ra - 4.) % 24
     end = (ra + 4.) % 24
@@ -192,7 +199,7 @@ def targets_not_behind_sun(start, aperture=None, colour=True, category=None):
     return tgs
 
 
-def visible_targets(start, site, name=None, aperture=None, colour=True, category=None):
+def visible_targets(start, site, name=None, aperture=None, category=None):
     """
     Produce a list of targets which visible to observer at specified date/time
     """

@@ -83,7 +83,6 @@ class TargetSerializerQuerystring(serializers.Serializer):
     """
     site = serializers.ChoiceField(choices=sites, required=False)
     start = serializers.DateTimeField()
-    end = serializers.DateTimeField(required=False)
     aperture = serializers.ChoiceField(required=False, choices=APERTURES)
     full = serializers.ChoiceField(required=False, choices=(('true', ''), ('false', ''), ('messier', '')))
     category = serializers.ChoiceField(required=False, choices=CATEGORIES)
@@ -92,5 +91,27 @@ class TargetSerializerQuerystring(serializers.Serializer):
         super(TargetSerializerQuerystring, self).is_valid(raise_exception)
         if self.data.get('site', '') and not self.data.get('start', ''):
             raise serializers.ValidationError("You must provide start date/time and a site.")
-        elif self.data.get('start', '') and not self.data.get('end', '') and not self.data.get('site', ''):
+        elif not self.data.get('site', ''):
+            raise serializers.ValidationError("You must provide a site code.")
+        elif not self.data.get('aperture', ''):
+            raise serializers.ValidationError("You must provide an aperture.")
+
+class RangeTargetSerializerQuerystring(serializers.Serializer):
+    """
+    This serializer is only used to validate querystring parameters in the api.
+    """
+    site = serializers.ChoiceField(choices=sites, required=False)
+    start = serializers.DateTimeField()
+    end = serializers.DateTimeField(required=False)
+    aperture = serializers.ChoiceField(required=False, choices=APERTURES)
+    full = serializers.ChoiceField(required=False, choices=(('true', ''), ('false', ''), ('messier', '')))
+    category = serializers.ChoiceField(required=False, choices=CATEGORIES)
+
+    def is_valid(self, raise_exception=True):
+        super(RangeTargetSerializerQuerystring, self).is_valid(raise_exception)
+        if not self.data.get('start', ''):
+            raise serializers.ValidationError("You must provide start date/time.")
+        elif not self.data.get('end', ''):
             raise serializers.ValidationError("You must provide an end date/time.")
+        elif not self.data.get('aperture', ''):
+            raise serializers.ValidationError("You must provide a telescope aperture class.")
