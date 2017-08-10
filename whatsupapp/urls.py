@@ -1,6 +1,6 @@
 """
-WhatsUP: astronomical object suggestions for Las Cumbres Observatory Global Telescope Network
-Copyright (C) 2014-2015 LCOGT
+WhatsUP: astronomical object suggestions for Las Cumbres Observatory
+Copyright (C) 2014-2017 LCO
 
 urls.py
 

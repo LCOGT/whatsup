@@ -116,7 +116,7 @@ TEMPLATES = [
 ]
 
 INSTALLED_APPS = (
-    'django_admin_bootstrapped',
+    'whatsup.apps.WhatsupConfig',
     'django.contrib.contenttypes',
     'django.contrib.auth',
     'django.contrib.sessions',
@@ -124,8 +124,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'rest_framework',
-    'whatsup'
+    'rest_framework'
 )
 
 REST_FRAMEWORK = {
