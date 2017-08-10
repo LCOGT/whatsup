@@ -195,7 +195,7 @@ def targets_not_behind_sun(start, aperture=None, category=None):
     if aperture:
         tgs = filter_targets_with_aperture(tgs, aperture)
     if category:
-        tgs = tgs.filter(avm_code__startswith=category)
+        tgs = tgs.filter(avm_code__contains=category)
     return tgs
 
 
