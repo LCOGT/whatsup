@@ -48,7 +48,12 @@ All suggested exposure times are scaled dependent on the `aperture` parameter an
 
 ### Search
 
-Accessed from `/search/`. All visible objects are displayed.
+Accessed from [/whatsup/search/](https://lco.global/whatsup/search/). All visible objects are displayed.
+
+#### Visibility
+We calculate the visibility of targets in the Whats Up database by filtering only those targets which are within +/- 3.5 hours of the Local Sidereal Time at the specified `site` and `start`. We further filter only those targets greater than 30º above the horizon at `start`.
+
+#### Parameters
 
 The form/API expects the following querystring parameters:
 * `start` - format must be `YYY-MM-DDTHH:MM:SS` in UTC,
@@ -72,7 +77,12 @@ https://lco.global/whatsup/search/?start=2017-08-08T09:28:10&aperture=1m0&site=o
 
 ### Date Range
 
-Accessed from `/range/`. Provides a list of targets visible in northern and southern hemisphere during time range
+Accessed from [/whatsup/range/](https://lco.global/whatsup/range/). Provides a list of targets visible in northern and southern hemisphere during specified time range.
+
+#### Visibility
+We calculate the visibility of targets in the Whats Up database by filtering only those targets which are within +/- 3.5 hours of the Local Sidereal Time at the specified `site` and `start`. We further filter only those targets greater than 30º above the horizon at `start`.
+
+#### Parameters
 
 The form/API expects the following querystring parameters:
 * `start` - format must be `YYY-MM-DDTHH:MM:SS` in UTC,
