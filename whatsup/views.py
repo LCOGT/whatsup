@@ -141,7 +141,6 @@ def search_targets(query_params):
     site = query_params.get('site', '')
     start = query_params.get('start', '')
     callback = query_params.get('callback', '')
-    full = query_params.get('full', '')
     category = query_params.get('category', '')
     s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S")
     aperture = query_params.get('aperture', None)
@@ -204,11 +203,16 @@ def visible_targets(start, site, name=None, aperture=None, category=None):
     Produce a list of targets which visible to observer at specified date/time
     """
     # start=  "2014-07-21T14:00:00"
-    # Find which targets are in the correct RA range, i.e. LST +/-2hours
+    # Find which targets are in the correct RA range, i.e. LST +/-3.5hours
     lst = calc_lst(start, site)
-    s0 = float(((lst - 3.5) * u.hourangle).to(u.degree) / u.deg)
-    e0 = float(((lst + 3.5) * u.hourangle).to(u.degree) / u.deg)
-    tgs = Target.objects.filter(~Q(avm_desc=''), ra__gte=s0, ra__lte=e0).order_by('avm_desc')
+    lst_deg = (lst * u.hourangle).to(u.deg)/u.deg
+    dha = (3.5*u.hourangle).to(u.deg)/u.deg
+    s0 = lst_deg - dha if (lst_deg - dha) > 0. else lst_deg - dha + 360.
+    e0 = lst_deg + dha if (lst_deg + dha) < 360. else lst_deg + dha - 360.
+    if s0 < 360. and e0 > 0. :
+        tgs = Target.objects.filter(Q(ra__gte=float(s0)) | Q(ra__lte=float(e0)), ~Q(avm_desc='')).order_by('avm_desc')
+    else:
+        tgs = Target.objects.filter(~Q(avm_desc=''), ra__gte=float(s0), ra__lte=float(e0)).order_by('avm_desc')
     if aperture:
         tgs = filter_targets_with_aperture(tgs, aperture)
     if category:

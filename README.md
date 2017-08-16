@@ -2,23 +2,73 @@
 
 Find what astronomical objects are visible above LCO sites from a curated list.
 
-* [/whatsup](http://lco.global/whatsup) - Where the application is currently running. This is a very basic form because most interaction is via API
+* [/whatsup](http://lco.global/whatsup) - Application address
+
+## Returned values
+
+Each call (from either endpoint) will return JSON response similar to below. `datetime` is the date and time the call was made.
+```json
+{
+  "count": 113,
+  "datetime": "2017-08-08T09:28:10",
+  "targets":	[...],
+	"site":"ogg",
+}
+```
+
+The targets field (i.e. `[...]` above) will display to a list of multiple visible targets, in the format below.
+```json
+{
+    "name": "NGC7479",
+    "ra": 346.2361167,
+    "dec": 12.3228778,
+    "desc": "NGC 7479 (also known as Caldwell 44) is a barred spiral galaxy about 105 million light-years away in the constellation Pegasus. This is a beautiful barred spiral galaxy, seen almost face on.",
+    "filters": [
+        {
+            "exposure": 240.0,
+            "name": "rp"
+        },
+        {
+            "exposure": 240.0,
+            "name": "V"
+        },
+        {
+            "exposure": 240.0,
+            "name": "B"
+        }
+    ],
+    "avmdesc": "Barred Galaxy",
+    "avmcode": "5.3.2.2;5.1.2"
+},
+```
+
+All suggested exposure times are scaled dependent on the `aperture` parameter and targets filtered to be appropriate to the field of view for the specified aperture.
 
 ## Endpoints
 
 ### Search
 
-Accessed from `/search/`. Provides a list of targets visible in northern and southern hemisphere during time range
+Accessed from `/search/`. All visible objects are displayed.
 
 The form/API expects the following querystring parameters:
 * `start` - format must be `YYY-MM-DDTHH:MM:SS` in UTC,
 * `site` - 3-letter site code for LCO sites. This can have the values `ogg`, `coj`, `elp`, `lsc`, or `cpt`.
 * `aperture` - size of telescope. Can have values `2m0`, `1m0`, or `0m4`.
-* `full=true/false` (optional) - Show full or truncated list of results,
 * `category` (optional) - filter by AVM category of target, e.g. `5.1.1` = Spiral Galaxies
-* `format=jsonp` (optional) - for `jsonp` requests
+* `format=jsonp` (optional) - for `jsonp` requests. Defaults to `json`
 
-* Exposure times are scaled dependent on the aperture and targets filtered to be appropriate to the available aperture.
+#### Example usage
+
+Using required arguments only `start`, `aperture` and `site`:
+```
+https://lco.global/whatsup/search/?start=2017-08-08T09:28:10&aperture=0m4&site=ogg
+```
+
+A full example of all available arguments is:
+
+```
+https://lco.global/whatsup/search/?start=2017-08-08T09:28:10&aperture=1m0&site=ogg&category=5.1.1&format=jsonp
+```
 
 ### Date Range
 
@@ -28,6 +78,19 @@ The form/API expects the following querystring parameters:
 * `start` - format must be `YYY-MM-DDTHH:MM:SS` in UTC,
 * `end` - format must be `YYY-MM-DDTHH:MM:SS` in UTC,
 * `aperture` - size of telescope. Can have values `2m0`, `1m0`, or `0m4`.
-* `full=true/false` (optional) - Show full or truncated list of results,
+* `full=true/false` (optional) - Show full or truncated list of results. Defaults to `false` where a maximum of 30 random results are displayed.
 * `category` (optional) - filter by AVM category of target, e.g. `5.1.1` = Spiral Galaxies
-* `format=jsonp` (optional) - for `jsonp` requests
+* `format=jsonp` (optional) - for `jsonp` requests. Defaults to `json`
+
+#### Example usage
+
+Using required arguments only `start`, `end` and `aperture`:
+```
+https://lco.global/whatsup/range/?start=2017-08-08T10:00:00&end=2017-08-17T10:00:00&aperture=0m4
+```
+
+A full example of all available arguments is:
+
+```
+https://lco.global/whatsup/range/?start=2017-08-08T10:00:00&end=2017-08-17T10:00:00&aperture=0m4&category=5.1.1&full=true&format=jsonp
+```
