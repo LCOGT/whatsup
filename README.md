@@ -51,7 +51,7 @@ All suggested exposure times are scaled dependent on the `aperture` parameter an
 Accessed from [/whatsup/search/](https://lco.global/whatsup/search/). All visible objects are displayed.
 
 #### Visibility
-We calculate the visibility of targets in the Whats Up database by filtering only those targets which are within +/- 3.5 hours of the Local Sidereal Time at the specified `site` and `start`. We further filter only those targets greater than 30º above the horizon at `start`.
+We calculate the visibility of targets in the Whats Up database by filtering only those targets which are within +/- 3.5 hours of the Local Sidereal Time at the specified `site` and `start`. We only display those targets greater than 30º above the horizon at `start`. Further filtering is performed using `aperture`, as the different field of views of LCO telescope classes can make some targets too large or small in images.
 
 #### Parameters
 
@@ -80,7 +80,7 @@ https://lco.global/whatsup/search/?start=2017-08-08T09:28:10&aperture=1m0&site=o
 Accessed from [/whatsup/range/](https://lco.global/whatsup/range/). Provides a list of targets visible in northern and southern hemisphere during specified time range.
 
 #### Visibility
-We calculate the visibility of targets in the Whats Up database by filtering only those targets which are within +/- 3.5 hours of the Local Sidereal Time at the specified `site` and `start`. We further filter only those targets greater than 30º above the horizon at `start`.
+We calculate the Right Ascension of the Sun at the midpoint between `start` and `end`. Targets in the Whats Up database are then filtering only those targets which are outside +/- 4 hours of the Sun's Right Ascension. Further filtering is performed using `aperture`, as the different field of views of LCO telescope classes can make some targets too large or small in images.
 
 #### Parameters
 
