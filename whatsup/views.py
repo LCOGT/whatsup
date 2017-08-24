@@ -209,7 +209,7 @@ def visible_targets(start, site, name=None, aperture=None, category=None):
     dha = (3.5*u.hourangle).to(u.deg)/u.deg
     s0 = lst_deg - dha if (lst_deg - dha) > 0. else lst_deg - dha + 360.
     e0 = lst_deg + dha if (lst_deg + dha) < 360. else lst_deg + dha - 360.
-    if s0 < 360. and e0 > 0. :
+    if s0 < 360. and e0 < s0 :
         tgs = Target.objects.filter(Q(ra__gte=float(s0)) | Q(ra__lte=float(e0)), ~Q(avm_desc='')).order_by('avm_desc')
     else:
         tgs = Target.objects.filter(~Q(avm_desc=''), ra__gte=float(s0), ra__lte=float(e0)).order_by('avm_desc')
