@@ -57,10 +57,11 @@ We calculate the visibility of targets in the Whats Up database by filtering onl
 
 The form/API expects the following querystring parameters:
 * `start` - format must be `YYY-MM-DDTHH:MM:SS` in UTC,
-* `site` - 3-letter site code for LCO sites. This can have the values `ogg`, `coj`, `elp`, `lsc`, or `cpt`.
-* `aperture` - size of telescope. Can have values `2m0`, `1m0`, or `0m4`.
+* `site` - 3-letter site code for LCO sites. Options `ogg`, `coj`, `elp`, `lsc`, or `cpt`.
+* `aperture` - size of telescope. Options `2m0`, `1m0`, or `0m4`.
 * `category` (optional) - filter by AVM category of target, e.g. `5.1.1` = Spiral Galaxies
-* `format=jsonp` (optional) - for `jsonp` requests. Defaults to `json`
+* `mode` (optional) - Options are `rti` or `normal`(default). `rti` filters the results to only those with exposure times < 600s. `normal` does not provide any filtering.
+* `format` (optional) - Which schema to respond to requests. Options are `json` (default), `jsonp` or `api` (web browser view).
 
 #### Example usage
 

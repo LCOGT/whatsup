@@ -144,7 +144,8 @@ def search_targets(query_params):
     category = query_params.get('category', '')
     s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S")
     aperture = query_params.get('aperture', None)
-    targets = visible_targets(start, site, aperture=aperture, category=category)
+    mode = query_params.get('mode', None)
+    targets = visible_targets(start, site, aperture=aperture, category=category, mode=mode)
     return targets
 
 def range_targets(query_params):
@@ -198,7 +199,7 @@ def targets_not_behind_sun(start, aperture=None, category=None):
     return tgs
 
 
-def visible_targets(start, site, name=None, aperture=None, category=None):
+def visible_targets(start, site, name=None, aperture=None, category=None, mode=None):
     """
     Produce a list of targets which visible to observer at specified date/time
     """
@@ -214,7 +215,7 @@ def visible_targets(start, site, name=None, aperture=None, category=None):
     else:
         tgs = Target.objects.filter(~Q(avm_desc=''), ra__gte=float(s0), ra__lte=float(e0)).order_by('avm_desc')
     if aperture:
-        tgs = filter_targets_with_aperture(tgs, aperture)
+        tgs = filter_targets_with_aperture(tgs, aperture, mode)
     if category:
         tgs = tgs.filter(avm_code__startswith=category)
     targets = []
@@ -226,7 +227,7 @@ def visible_targets(start, site, name=None, aperture=None, category=None):
             targets.append(t)
     return targets
 
-def filter_targets_with_aperture(targets, aperture):
+def filter_targets_with_aperture(targets, aperture, mode):
     """
     Filter queryset, prefetch related params while filtering them agains aperture parameter
     :param targets: Target queryset
@@ -234,4 +235,7 @@ def filter_targets_with_aperture(targets, aperture):
     :return: queryset
     """
     prefetch = Prefetch('parameters', queryset=Params.objects.filter(aperture=aperture))
-    return targets.filter(parameters__aperture=aperture).prefetch_related(prefetch).distinct()
+    if mode == 'rti':
+        return targets.filter(parameters__aperture=aperture, parameters__exposure__lte=600.).prefetch_related(prefetch).distinct()
+    else:
+        return targets.filter(parameters__aperture=aperture).prefetch_related(prefetch).distinct()
