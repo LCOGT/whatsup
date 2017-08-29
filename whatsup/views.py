@@ -227,7 +227,7 @@ def visible_targets(start, site, name=None, aperture=None, category=None, mode=N
             targets.append(t)
     return targets
 
-def filter_targets_with_aperture(targets, aperture, mode):
+def filter_targets_with_aperture(targets, aperture, mode=None):
     """
     Filter queryset, prefetch related params while filtering them agains aperture parameter
     :param targets: Target queryset
