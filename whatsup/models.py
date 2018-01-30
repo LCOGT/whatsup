@@ -38,15 +38,20 @@ FILTERS = (('B', 'Bessell-B'),
            ('solar', 'Solar (V+R)')
            )
 
-CATEGORIES = (('3.6.4.1', 'Open Cluster'),
+CATEGORIES = (
+                ('3.6.4', 'Star cluster'),
+                ('3.6.4.1', 'Open Cluster'),
                 ('3.6.4.2', 'Globular Cluster'),
                 ('4', 'Nebula'),
+                ('4.1.2', 'Star-forming Nebula'),
                 ('4.1.3', 'Planetary Nebula'),
                 ('4.1.4', 'Supernova Remnant'),
                 ('5','Galaxy'),
                 ('5.1.1', 'Spiral Galaxy'),
+                ('5.1.2', 'Barred Spiral Galaxy'),
                 ('5.1.4', 'Elliptical Galaxy'),
-                ('5.1.6', 'Interacting Galaxies'),
+                ('5.1.6', 'Irregular Galaxies'),
+                ('5.5.2', 'Group of Galaxies'),
                 )
 
 class Constellation(models.Model):
@@ -85,7 +90,7 @@ class Target(models.Model):
     aperture = models.CharField('Appropriate aperture', max_length=3, choices=APERTURES, default='any')
     project = models.ForeignKey(Project, null=True, blank=True)
     owner = models.ForeignKey(User, related_name='targets', default=1)
-    
+
     class Meta:
         verbose_name = _('Target')
         verbose_name_plural = _('Targets')
