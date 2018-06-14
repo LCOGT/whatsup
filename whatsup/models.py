@@ -51,7 +51,7 @@ CATEGORIES = (
                 ('5.1.2', 'Barred Spiral Galaxy'),
                 ('5.1.4', 'Elliptical Galaxy'),
                 ('5.1.6', 'Irregular Galaxies'),
-                ('5.5.2', 'Group of Galaxies'),
+                ('5.5', 'Galaxy Groups'),
                 )
 
 class Constellation(models.Model):
