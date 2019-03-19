@@ -15,12 +15,12 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-from django.conf.urls import include, url
+from django.urls import include, path, re_path
 from django.contrib import admin
 
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^', include('whatsup.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+    re_path(r'^', include('whatsup.urls')),
+    re_path(r'^admin/', admin.site.urls),
 ]

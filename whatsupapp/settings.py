@@ -2,19 +2,17 @@ import os
 import sys
 from django.utils.crypto import get_random_string
 
-VERSION = 1.1
-
 TEST = 'test' in sys.argv
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 BASE_DIR = os.path.dirname(CURRENT_PATH)
 PREFIX = os.environ.get('PREFIX', '')
-PRODUCTION = True if CURRENT_PATH.startswith('/var/www') else False
-LOCAL_DEVELOPMENT = False if CURRENT_PATH.startswith('/var/www') else True
 
-# Forces the APP to use the prefix, so when we host these apps we don't get funny stuff happening at log in.
-FORCE_SCRIPT_NAME = PREFIX if PRODUCTION else ''
+# Forces the application to use the prefix, so when we host these apps we don't
+# get funny stuff happening at log in.
+FORCE_SCRIPT_NAME = PREFIX
 
-DEBUG = not PRODUCTION
+# Do not enable debug mode in production!
+DEBUG = (os.environ.get('DEBUG', 'False').upper() == 'TRUE')
 
 ADMINS = (
     #('Edward Gomez', 'egomez@lcogt.net'),
@@ -27,14 +25,11 @@ SESSION_COOKIE_NAME = "whatsup.sessionid"
 
 DATABASES = {
     "default": {
-        # Live DB
         "ENGINE": "django.db.backends.mysql",
-        "NAME": os.environ.get('WHATSUP_DB_NAME', ''),
-        "USER": os.environ.get('WHATSUP_DB_USER', ''),
-        "PASSWORD": os.environ.get('WHATSUP_DB_PASSWD', ''),
-        "HOST": os.environ.get('WHATSUP_DB_HOST', ''),
-        "OPTIONS": {'init_command': 'SET storage_engine=INNODB'},
-
+        "NAME": os.environ.get('DB_NAME', ''),
+        "USER": os.environ.get('DB_USER', ''),
+        "PASSWORD": os.environ.get('DB_PASS', ''),
+        "HOST": os.environ.get('DB_HOST', ''),
     }
 }
 
@@ -173,9 +168,3 @@ COORDS = {
     'cpt': {'lat': -32.38, 'lon': 20.81},
     'tfn': {'lat': 28.3, 'lon': -16.51},
 }
-
-if LOCAL_DEVELOPMENT:
-    try:
-        from local_settings import *
-    except:
-        pass

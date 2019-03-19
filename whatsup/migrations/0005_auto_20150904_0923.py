@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='params',
             name='target',
-            field=models.ForeignKey(related_name='parameters', to='whatsup.Target'),
+            field=models.ForeignKey(related_name='parameters', to='whatsup.Target', on_delete=models.CASCADE),
         ),
         migrations.AlterField(
             model_name='target',

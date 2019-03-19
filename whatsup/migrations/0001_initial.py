@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
                 ('avm_desc', models.CharField(max_length=50, null=True, blank=True)),
                 ('exposure', models.TextField(default=b'0', verbose_name=b'exposure time on 2-meters')),
                 ('best', models.BooleanField(default=False, verbose_name=b"Editor's pick")),
-                ('constellation', models.ForeignKey(blank=True, to='whatsup.Constellation', null=True)),
+                ('constellation', models.ForeignKey(blank=True, to='whatsup.Constellation', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['name'],

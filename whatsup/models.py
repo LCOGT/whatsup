@@ -85,11 +85,11 @@ class Target(models.Model):
     dec = models.FloatField(default=0.0)
     avm_code = models.CharField(max_length=50, null=True, blank=True)
     avm_desc = models.CharField(max_length=50, null=True, blank=True)
-    constellation = models.ForeignKey(Constellation, null=True, blank=True)
+    constellation = models.ForeignKey(Constellation, null=True, blank=True, on_delete=models.CASCADE)
     best = models.BooleanField("Editor's pick", default=False)
     aperture = models.CharField('Appropriate aperture', max_length=3, choices=APERTURES, default='any')
-    project = models.ForeignKey(Project, null=True, blank=True)
-    owner = models.ForeignKey(User, related_name='targets', default=1)
+    project = models.ForeignKey(Project, null=True, blank=True, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, related_name='targets', default=1, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _('Target')
@@ -101,7 +101,7 @@ class Target(models.Model):
 
 
 class Params(models.Model):
-    target = models.ForeignKey(Target, related_name='parameters')
+    target = models.ForeignKey(Target, related_name='parameters', on_delete=models.CASCADE)
     filters = models.CharField('Filter name', choices=FILTERS, max_length=15)
     exposure = models.FloatField(default=1)
     aperture = models.CharField(max_length=3, choices=APERTURES, default='1m0')

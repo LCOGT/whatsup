@@ -220,7 +220,7 @@ def visible_targets(start, site, name=None, aperture=None, category=None, mode=N
         tgs = tgs.filter(avm_code__startswith=category)
     targets = []
     # # Filter these targets by which are above (horizon + 30deg) for observer
-    for t in tgs:
+    for t in list(tgs):
         hour = lst - float((t.ra * u.deg).to(u.hourangle) / u.hourangle)
         az, alt = eqtohorizon(hour, t.dec, coords[site]['lat'])
         if alt >= 30.:

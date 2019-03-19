@@ -31,6 +31,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='target',
             name='project',
-            field=models.ForeignKey(blank=True, to='whatsup.Project', null=True),
+            field=models.ForeignKey(blank=True, to='whatsup.Project', null=True, on_delete=models.CASCADE),
         ),
     ]
