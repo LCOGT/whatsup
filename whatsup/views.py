@@ -51,36 +51,6 @@ def api_root(request, format=None):
     })
 
 
-class TargetDetail(APIView):
-    """
-    Retrieve, update or delete a target instance.
-    """
-
-    def get_object(self, pk):
-        try:
-            return Target.objects.get(pk=pk)
-        except Target.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        target = self.get_object(pk)
-        serializer = TargetSerializer(target)
-        return Response(serializer.data)
-
-    def put(self, request, pk, format=None):
-        target = self.get_object(pk)
-        serializer = TargetSerializer(target, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        target = self.get_object(pk)
-        target.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 class TargetListView(APIView):
     """
     Returns the list of Targets with filters applied:
@@ -167,7 +137,7 @@ def range_targets(query_params):
         targets = targets.filter(name__startswith='M')
     elif full != 'true':
         if targets.count() > 30:
-            targets = random.sample(targets, 30)
+            targets = targets.order_by('?')[:30]
     return targets
 
 def find_target(name):
