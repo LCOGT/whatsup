@@ -1,12 +1,7 @@
 Django>=2.1,<2.2
-mysqlclient==1.4.2
-astropy==3.1.2
-beautifulsoup4==4.7.1
-numpy==1.16.2
-djangorestframework==3.9.2
-djangorestframework-jsonp==1.0.2
-factory-boy==2.11.1
-pytest==4.3.1
-pytest-django==3.4.8
-requests==2.21.0
+mysqlclient
+astropy
+numpy
+djangorestframework
+djangorestframework-jsonp
 gunicorn==19.9.0
