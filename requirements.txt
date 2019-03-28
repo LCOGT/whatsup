@@ -1,5 +1,5 @@
 Django>=1.11,<1.12
-mysqlclient
+MySQL-python
 astropy
 numpy
 djangorestframework
