@@ -195,7 +195,8 @@ def targets_not_behind_sun(start, aperture=None, category=None):
     if aperture:
         tgs = filter_targets_with_aperture(tgs, aperture)
     if category:
-        tgs = tgs.filter(avm_code__contains=category)
+        join_cat = ";{}".format(category)
+        tgs = tgs.filter(Q(avm_code__startswith=category) | Q(avm_code__contains=join_cat))
     return tgs
 
 
@@ -217,7 +218,8 @@ def visible_targets(start, site, name=None, aperture=None, category=None, mode=N
     if aperture:
         tgs = filter_targets_with_aperture(tgs, aperture, mode)
     if category:
-        tgs = tgs.filter(avm_code__startswith=category)
+        join_cat = ";{}".format(category)
+        tgs = tgs.filter(Q(avm_code__startswith=category) | Q(avm_code__contains=join_cat))
     targets = []
     # # Filter these targets by which are above (horizon + 30deg) for observer
     for t in tgs:

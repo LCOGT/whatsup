@@ -1,12 +1,6 @@
-Django>=1.11,<1.12
-MySQL-python
+Django>=2.1,<2.2
+mysqlclient
 astropy
-beautifulsoup4==4.3.2
 numpy
 djangorestframework
 djangorestframework-jsonp
-django-admin-bootstrapped
-factory-boy
-pytest
-pytest-django
-requests
