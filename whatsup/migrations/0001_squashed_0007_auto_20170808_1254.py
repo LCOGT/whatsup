@@ -74,7 +74,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='target',
             name='aperture',
-            field=models.CharField(choices=[(b'1m0', b'1-meter'), (b'2m0', b'2-meter'), (b'04m', b'0.4-meter'), (b'any', b'Any')], default=b'any', max_length=3),
+            field=models.CharField(choices=[(b'1m0', b'1-meter'), (b'2m0', b'2-meter'), (b'0m4', b'0.4-meter'), (b'any', b'Any')], blank=True, null=True, max_length=5),
         ),
         migrations.CreateModel(
             name='Params',
@@ -82,7 +82,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('filters', models.CharField(choices=[(b'B', b'Bessell-B'), (b'I', b'Bessell-I'), (b'R', b'Bessell-R'), (b'V', b'Bessell-V'), (b'H-Alpha', b'H Alpha'), (b'H-Beta', b'H Beta'), (b'OIII', b'OIII'), (b'Y', b'PanSTARRS-Y'), (b'zs', b'PanSTARRS-Z'), (b'gp', b'SDSS-g&prime;'), (b'ip', b'SDSS-i&prime;'), (b'rp', b'SDSS-r&prime;'), (b'up', b'SDSS-u&prime;'), (b'solar', b'Solar (V+R)')], max_length=15, verbose_name=b'Filter name')),
                 ('exposure', models.FloatField(default=1)),
-                ('aperture', models.CharField(choices=[(b'1m0', b'1-meter'), (b'2m0', b'2-meter'), (b'0m4', b'0.4-meter'), (b'any', b'Any'), (b'sml', b' 1m and 0.4m only')], default=b'1m0', max_length=3)),
+                ('aperture', models.CharField(choices=[(b'1m0', b'1-meter'), (b'2m0', b'2-meter'), (b'0m4', b'0.4-meter'), (b'any', b'Any'), (b'sml', b' 1m and 0.4m only')], blank=True, null=True, max_length=5)),
                 ('target', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='parameters', to='whatsup.Target')),
             ],
             options={
@@ -93,12 +93,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='target',
             name='aperture',
-            field=models.CharField(choices=[(b'1m0', b'1-meter'), (b'2m0', b'2-meter'), (b'04m', b'0.4-meter'), (b'any', b'Any'), (b'sml', b' 1m and 0.4m only')], default=b'any', max_length=3, verbose_name=b'Appropriate aperture'),
+            field=models.CharField(choices=[(b'1m0', b'1-meter'), (b'2m0', b'2-meter'), (b'04m', b'0.4-meter'), (b'any', b'Any'), (b'sml', b' 1m and 0.4m only')], blank=True, null=True, max_length=5, verbose_name=b'Appropriate aperture'),
         ),
         migrations.AlterField(
             model_name='target',
             name='aperture',
-            field=models.CharField(choices=[(b'1m0', b'1-meter'), (b'2m0', b'2-meter'), (b'0m4', b'0.4-meter'), (b'any', b'Any'), (b'sml', b' 1m and 0.4m only')], default=b'any', max_length=3, verbose_name=b'Appropriate aperture'),
+            field=models.CharField(choices=[(b'1m0', b'1-meter'), (b'2m0', b'2-meter'), (b'0m4', b'0.4-meter'), (b'any', b'Any'), (b'sml', b' 1m and 0.4m only')], blank=True, null=True, max_length=5, verbose_name=b'Appropriate aperture'),
         ),
         migrations.RemoveField(
             model_name='target',
