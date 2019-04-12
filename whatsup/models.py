@@ -65,19 +65,6 @@ class Constellation(models.Model):
     def __unicode__(self):
         return u"%s" % self.name
 
-
-class Project(models.Model):
-    name = models.CharField(max_length=50)
-    shortname = models.CharField(max_length=10)
-
-    class Meta:
-        verbose_name = _('Project')
-        verbose_name_plural = _('Projects')
-
-    def __unicode__(self):
-        return u"%s" % self.name
-
-
 class Target(models.Model):
     name = models.CharField(max_length=20)
     description = models.TextField(null=True, blank=True)
@@ -87,9 +74,6 @@ class Target(models.Model):
     avm_desc = models.CharField(max_length=50, null=True, blank=True)
     constellation = models.ForeignKey(Constellation, null=True, blank=True, on_delete=models.CASCADE)
     best = models.BooleanField("Editor's pick", default=False)
-    aperture = models.CharField('Appropriate aperture', max_length=3, choices=APERTURES, default='any')
-    project = models.ForeignKey(Project, null=True, blank=True, on_delete=models.CASCADE)
-    owner = models.ForeignKey(User, related_name='targets', default=1, on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = _('Target')
