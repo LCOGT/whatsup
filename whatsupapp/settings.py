@@ -5,11 +5,6 @@ from django.utils.crypto import get_random_string
 TEST = 'test' in sys.argv
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 BASE_DIR = os.path.dirname(CURRENT_PATH)
-PREFIX = os.environ.get('PREFIX', '')
-
-# Forces the application to use the prefix, so when we host these apps we don't
-# get funny stuff happening at log in.
-FORCE_SCRIPT_NAME = PREFIX
 
 # Do not enable debug mode in production!
 DEBUG = (os.environ.get('DEBUG', 'False').upper() == 'TRUE')
@@ -61,14 +56,14 @@ USE_L10N = True
 USE_TZ = False
 
 STATICFILES_DIRS = []
-STATIC_URL = PREFIX + '/static/'
+STATIC_URL = '/static/'
 
 STATIC_ROOT = '/var/www/html/static/'
 
 
 # #### Upload directory for the proposalsubmit app. Also where proposal PDFs are created
 MEDIA_ROOT = os.path.join(CURRENT_PATH, 'media')
-MEDIA_URL = PREFIX + '/media/'
+MEDIA_URL = '/media/'
 
 # List of finder classes that know how to find static files in
 # various locations.

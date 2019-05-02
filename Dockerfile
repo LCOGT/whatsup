@@ -14,4 +14,4 @@ RUN apk --no-cache add mariadb-connector-c \
 COPY . .
 
 # default command
-CMD [ "gunicorn", "--workers=2", "--bind=0.0.0.0:8080", "--access-logfile=-", "--error-logfile=-", "whatsupapp.wsgi:application"]
+CMD [ "gunicorn", "--worker-class=gevent", "--workers=2", "--bind=0.0.0.0:8080", "--user=daemon", "--group=daemon", "--access-logfile=-", "--error-logfile=-", "whatsupapp.wsgi:application"]
