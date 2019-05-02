@@ -25,7 +25,10 @@ DATABASES = {
         "USER": os.environ.get('DB_USER', ''),
         "PASSWORD": os.environ.get('DB_PASS', ''),
         "HOST": os.environ.get('DB_HOST', ''),
-    }
+        "OPTIONS": {
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
+    },
 }
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
