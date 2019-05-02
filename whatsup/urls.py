@@ -15,16 +15,13 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-from django.conf.urls import include, url
+from django.urls import include, path
 
 from . import views
 
-
 urlpatterns = [
-    url(r'^$', views.api_root, name='apiroot'),
-    url(r'search/v2/$', views.TargetListView.as_view(), name="api_v2_search"),
-    url(r'search/$', views.TargetListView.as_view(), name="api_search"),
-    url(r'range/$', views.TargetListRangeView.as_view(), name="api_range"),
-    url(r'^target/(?P<pk>[0-9]+)/$', views.TargetDetail.as_view(), name='api_target_detail'),
-    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('', views.api_root, name='apiroot'),
+    path('search/v2/', views.TargetListView.as_view(), name="api_v2_search"),
+    path('search/', views.TargetListView.as_view(), name="api_search"),
+    path('range/', views.TargetListRangeView.as_view(), name="api_range"),
 ]

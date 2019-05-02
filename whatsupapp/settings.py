@@ -2,19 +2,12 @@ import os
 import sys
 from django.utils.crypto import get_random_string
 
-VERSION = 1.1
-
 TEST = 'test' in sys.argv
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 BASE_DIR = os.path.dirname(CURRENT_PATH)
-PREFIX = os.environ.get('PREFIX', '')
-PRODUCTION = True if CURRENT_PATH.startswith('/var/www') else False
-LOCAL_DEVELOPMENT = False if CURRENT_PATH.startswith('/var/www') else True
 
-# Forces the APP to use the prefix, so when we host these apps we don't get funny stuff happening at log in.
-FORCE_SCRIPT_NAME = PREFIX if PRODUCTION else ''
-
-DEBUG = not PRODUCTION
+# Do not enable debug mode in production!
+DEBUG = (os.environ.get('DEBUG', 'False').upper() == 'TRUE')
 
 ADMINS = (
     #('Edward Gomez', 'egomez@lcogt.net'),
@@ -27,14 +20,11 @@ SESSION_COOKIE_NAME = "whatsup.sessionid"
 
 DATABASES = {
     "default": {
-        # Live DB
         "ENGINE": "django.db.backends.mysql",
-        "NAME": os.environ.get('WHATSUP_DB_NAME', ''),
-        "USER": os.environ.get('WHATSUP_DB_USER', ''),
-        "PASSWORD": os.environ.get('WHATSUP_DB_PASSWD', ''),
-        "HOST": os.environ.get('WHATSUP_DB_HOST', ''),
-        "OPTIONS": {'init_command': 'SET storage_engine=INNODB'},
-
+        "NAME": os.environ.get('DB_NAME', ''),
+        "USER": os.environ.get('DB_USER', ''),
+        "PASSWORD": os.environ.get('DB_PASS', ''),
+        "HOST": os.environ.get('DB_HOST', ''),
     }
 }
 
@@ -66,14 +56,14 @@ USE_L10N = True
 USE_TZ = False
 
 STATICFILES_DIRS = []
-STATIC_URL = PREFIX + '/static/'
+STATIC_URL = '/static/'
 
 STATIC_ROOT = '/var/www/html/static/'
 
 
 # #### Upload directory for the proposalsubmit app. Also where proposal PDFs are created
 MEDIA_ROOT = os.path.join(CURRENT_PATH, 'media')
-MEDIA_URL = PREFIX + '/media/'
+MEDIA_URL = '/media/'
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -84,15 +74,15 @@ STATICFILES_FINDERS = (
 )
 
 
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
 
 ROOT_URLCONF = 'whatsupapp.urls'
 
@@ -174,8 +164,9 @@ COORDS = {
     'tfn': {'lat': 28.3, 'lon': -16.51},
 }
 
-if LOCAL_DEVELOPMENT:
+if not CURRENT_PATH.startswith('/var/www'):
     try:
-        from local_settings import *
-    except:
-        pass
+        from .local_settings import *
+    except ImportError as e:
+        if "local_settings" not in str(e):
+            raise e

@@ -4,3 +4,4 @@ astropy
 numpy
 djangorestframework
 djangorestframework-jsonp
+gunicorn[gevent]==19.9.0

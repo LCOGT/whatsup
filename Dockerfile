@@ -1,30 +1,17 @@
-FROM centos:7
-MAINTAINER LCO Webmaster <webmaster@lco.global>
+FROM python:3.7-alpine
 
-EXPOSE 80
-ENTRYPOINT [ "/init" ]
+# Work within directory /app
+WORKDIR /app
 
-# Setup the Python Django environment
-ENV PYTHONPATH /var/www/whatsup
-ENV DJANGO_SETTINGS_MODULE whatsupapp.settings
+# install Python dependencies
+COPY requirements.txt .
+RUN apk --no-cache add mariadb-connector-c \
+        && apk --no-cache add --virtual .build-deps gcc mariadb-connector-c-dev musl-dev \
+        && pip --no-cache-dir install -r requirements.txt \
+        && apk --no-cache del .build-deps
 
-# Set the PREFIX env variable
-ENV PREFIX /whatsup
+# install application
+COPY . .
 
-# install and update packages
-RUN yum -y install epel-release \
-        && yum -y install MySQL-python python-pip nginx supervisor uwsgi-plugin-python \
-        && yum -y update \
-        && yum -y clean all
-
-# install python requirements
-COPY requirements.txt /var/www/whatsup/requirements.txt
-RUN pip install --upgrade pip \
-        && pip install -r /var/www/whatsup/requirements.txt \
-        && rm -rf /root/.cache /root/.pip
-
-# install configuration
-COPY docker/ /
-
-# install webapp
-COPY . /var/www/whatsup
+# default command
+CMD [ "gunicorn", "--worker-class=gevent", "--workers=2", "--bind=0.0.0.0:8080", "--user=daemon", "--group=daemon", "--access-logfile=-", "--error-logfile=-", "whatsupapp.wsgi:application"]

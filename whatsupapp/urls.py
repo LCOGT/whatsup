@@ -15,12 +15,18 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 
-from django.conf.urls import include, url
+from django.urls import include, path, path
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 admin.autodiscover()
 
 urlpatterns = [
-    url(r'^', include('whatsup.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+    path('', include('whatsup.urls')),
+    path('admin/', admin.site.urls),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

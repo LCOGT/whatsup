@@ -105,3 +105,8 @@ A full example of all available arguments is:
 ```
 https://lco.global/whatsup/range/?start=2017-08-08T10:00:00&end=2017-08-17T10:00:00&aperture=0m4&category=5.1.1&full=true&format=jsonp
 ```
+
+## Build
+
+This project is built automatically by the [LCO Jenkins Server](http://jenkins.lco.gtn/).
+Please see the [Jenkinsfile](Jenkinsfile) for details.

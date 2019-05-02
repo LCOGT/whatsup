@@ -15,7 +15,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 """
 from django.contrib import admin
-from whatsup.models import Target, Project, Params
+from whatsup.models import Target, Params
 
 class FilterInline(admin.TabularInline):
     model = Params
@@ -27,5 +27,4 @@ class TargetAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Target, TargetAdmin)
-admin.site.register(Project)
 admin.site.register(Params)

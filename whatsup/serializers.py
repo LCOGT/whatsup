@@ -18,7 +18,7 @@ GNU General Public License for more details.
 from django.conf import settings
 from rest_framework import serializers
 
-from models import Target, Params, APERTURES, FILTERS, CATEGORIES
+from .models import Target, Params, APERTURES, FILTERS, CATEGORIES
 
 
 class FilterSerializer(serializers.ModelSerializer):

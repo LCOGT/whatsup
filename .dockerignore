@@ -5,3 +5,7 @@ docker-compose.yml
 LICENSE
 README.md
 *.pyc
+env
+env3
+venv
+venv3
