@@ -13,8 +13,10 @@ ADMINS = (
     #('Edward Gomez', 'egomez@lcogt.net'),
 )
 
-chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
-SECRET_KEY = get_random_string(50, chars)
+SECRET_KEY = os.environ.get('SECRET_KEY', None)
+if not SECRET_KEY:
+    chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+    SECRET_KEY = get_random_string(50, chars)
 
 SESSION_COOKIE_NAME = "whatsup.sessionid"
 
