@@ -1,33 +1,28 @@
 import os
+import ast
 import sys
-from django.utils.crypto import get_random_string
 
-TEST = 'test' in sys.argv
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 BASE_DIR = os.path.dirname(CURRENT_PATH)
 
 # Do not enable debug mode in production!
-DEBUG = (os.environ.get('DEBUG', 'False').upper() == 'TRUE')
+DEBUG = ast.literal_eval(os.environ.get('DEBUG', 'False'))
 
 ADMINS = (
     #('Edward Gomez', 'egomez@lcogt.net'),
 )
 
-chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
-SECRET_KEY = get_random_string(50, chars)
+SECRET_KEY = os.environ.get('SECRET_KEY', None)
 
 SESSION_COOKIE_NAME = "whatsup.sessionid"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ.get('DB_NAME', ''),
         "USER": os.environ.get('DB_USER', ''),
         "PASSWORD": os.environ.get('DB_PASS', ''),
         "HOST": os.environ.get('DB_HOST', ''),
-        "OPTIONS": {
-            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
     },
 }
 

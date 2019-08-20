@@ -1,7 +1,7 @@
 Django>=2.1,<2.2
-mysqlclient
-astropy
-numpy
-djangorestframework
-djangorestframework-jsonp
+psycopg2==2.8.3
+astropy==3.2.1
+numpy==1.17.0
+djangorestframework==3.10.2
+djangorestframework-jsonp==1.0.2
 gunicorn[gevent]==19.9.0

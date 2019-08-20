@@ -5,8 +5,8 @@ WORKDIR /app
 
 # install Python dependencies
 COPY requirements.txt .
-RUN apk --no-cache add mariadb-connector-c \
-        && apk --no-cache add --virtual .build-deps gcc mariadb-connector-c-dev musl-dev \
+RUN apk --no-cache add postgresql-client \
+        && apk --no-cache add --virtual .build-deps gcc musl-dev postgresql-dev \
         && pip --no-cache-dir install -r requirements.txt \
         && apk --no-cache del .build-deps
 
