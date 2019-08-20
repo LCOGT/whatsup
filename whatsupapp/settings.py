@@ -55,11 +55,8 @@ USE_TZ = False
 
 STATICFILES_DIRS = []
 STATIC_URL = '/static/'
+STATIC_ROOT = '/static/'
 
-STATIC_ROOT = '/var/www/html/static/'
-
-
-# #### Upload directory for the proposalsubmit app. Also where proposal PDFs are created
 MEDIA_ROOT = os.path.join(CURRENT_PATH, 'media')
 MEDIA_URL = '/media/'
 
