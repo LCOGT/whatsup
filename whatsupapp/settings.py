@@ -13,6 +13,9 @@ ADMINS = (
 )
 
 SECRET_KEY = os.environ.get('SECRET_KEY', None)
+if not SECRET_KEY:
+    chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
+    SECRET_KEY = get_random_string(50, chars)
 
 SESSION_COOKIE_NAME = "whatsup.sessionid"
 
@@ -70,6 +73,7 @@ STATICFILES_FINDERS = (
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -109,7 +113,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.admin',
-    'rest_framework'
+    'rest_framework',
+    'corsheaders',
 )
 
 REST_FRAMEWORK = {
@@ -158,6 +163,8 @@ COORDS = {
     'cpt': {'lat': -32.38, 'lon': 20.81},
     'tfn': {'lat': 28.3, 'lon': -16.51},
 }
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 if not CURRENT_PATH.startswith('/var/www'):
     try:
