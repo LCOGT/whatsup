@@ -1,7 +1,8 @@
-Django>=2.1,<2.2
+django ~> 2.2.3
 mysqlclient
 astropy
 numpy
 djangorestframework
 djangorestframework-jsonp
+django-cors-headers
 gunicorn[gevent]==19.9.0
