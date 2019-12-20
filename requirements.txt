@@ -1,8 +1,6 @@
 Django>=2.1,<2.2
 psycopg2==2.8.3
-astropy==3.2.1
-Cython
-numpy==1.17.0
+numpy==1.17.4
 djangorestframework==3.10.2
 djangorestframework-jsonp==1.0.2
 django-cors-headers
