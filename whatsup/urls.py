@@ -21,6 +21,7 @@ from . import views
 
 urlpatterns = [
     path('', views.api_root, name='apiroot'),
+    path('target/',views.TargetDetailView.as_view(), name="api_target"),
     path('search/v2/', views.TargetListView.as_view(), name="api_v2_search"),
     path('search/', views.TargetListView.as_view(), name="api_search"),
     path('range/', views.TargetListRangeView.as_view(), name="api_range"),

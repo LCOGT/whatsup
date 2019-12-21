@@ -50,6 +50,29 @@ def api_root(request, format=None):
         'search': reverse('api_search', request=request, format=format),
     })
 
+class TargetDetailView(APIView):
+    """
+    Returns a match for Target name with filter and suggested exp times:
+    :param: name (required) - name of the object
+    :param: aperture (required) - One of '0m4', '1m0','2m0'
+    """
+    renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
+
+    def get(self, request, format=None):
+        name = request.query_params.get('name',None)
+        name = name.replace(' ','').upper()
+        targets = Target.objects.filter(name=name)
+        aperture = request.query_params.get('aperture',None)
+        tgs = filter_targets_with_aperture(targets, aperture=aperture, mode=None)
+        serializer = AdvTargetSerializer(tgs, many=True)
+        if serializer.data:
+            data = serializer.data[0]
+        else:
+            data = []
+        content = {'target': data,
+                    'aperture' : aperture,
+                   }
+        return Response(content)
 
 class TargetListView(APIView):
     """
@@ -115,7 +138,8 @@ def search_targets(query_params):
     s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S")
     aperture = query_params.get('aperture', None)
     mode = query_params.get('mode', None)
-    targets = visible_targets(start, site, aperture=aperture, category=category, mode=mode)
+    name = query_params.get('name',None)
+    targets = visible_targets(start, site, aperture=aperture, category=category, mode=mode, name=name)
     return targets
 
 def range_targets(query_params):
