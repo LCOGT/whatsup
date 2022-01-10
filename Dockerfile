@@ -8,8 +8,8 @@ COPY requirements.txt .
 RUN apk --no-cache add postgresql-client \
         && apk --no-cache add --virtual .build-deps g++ gcc musl-dev postgresql-dev \
         && pip --no-cache-dir install -r requirements.txt \
-        && pip --no-cache-dir install astropy
-        && apk --no-cache del .build-deps \
+        && pip --no-cache-dir install astropy \
+        && apk --no-cache del .build-deps 
 
 # install application
 COPY . .
