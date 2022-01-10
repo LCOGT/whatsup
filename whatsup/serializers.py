@@ -84,7 +84,7 @@ class TargetSerializerQuerystring(serializers.Serializer):
     site = serializers.ChoiceField(choices=sites, required=False)
     start = serializers.DateTimeField()
     aperture = serializers.ChoiceField(required=False, choices=APERTURES)
-    full = serializers.ChoiceField(required=False, choices=(('true', ''), ('false', ''), ('messier', '')))
+    full = serializers.ChoiceField(required=False, choices=(('true', ''), ('false', ''), ('messier', ''), ('best','')))
     category = serializers.ChoiceField(required=False, choices=CATEGORIES)
 
     def is_valid(self, raise_exception=True):
@@ -104,7 +104,7 @@ class RangeTargetSerializerQuerystring(serializers.Serializer):
     start = serializers.DateTimeField()
     end = serializers.DateTimeField(required=False)
     aperture = serializers.ChoiceField(required=False, choices=APERTURES)
-    full = serializers.ChoiceField(required=False, choices=(('true', ''), ('false', ''), ('messier', '')))
+    full = serializers.ChoiceField(required=False, choices=(('true', ''), ('false', ''), ('messier', ''), ('best','')))
     category = serializers.ChoiceField(required=False, choices=CATEGORIES)
 
     def is_valid(self, raise_exception=True):

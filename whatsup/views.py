@@ -74,6 +74,19 @@ class TargetDetailView(APIView):
                    }
         return Response(content)
 
+class TargetFullListView(APIView):
+    """
+    Returns the full list of Targets
+    """
+    renderer_classes = (JSONRenderer, JSONPRenderer, BrowsableAPIRenderer)
+
+    def get(self, request, format=None):
+        targets = targets_all()
+        serializer = AdvTargetSerializer(targets, many=True)
+        content = {'targets': serializer.data,
+                   'count' : len(targets)}
+        return Response(content)
+
 class TargetListView(APIView):
     """
     Returns the list of Targets with filters applied:
@@ -159,6 +172,8 @@ def range_targets(query_params):
     targets = targets_not_behind_sun(start=meandate, aperture=aperture, category=category)
     if full == 'messier':
         targets = targets.filter(name__startswith='M')
+    elif full == 'best':
+        targets = targets.filter(best=True)
     elif full != 'true':
         if targets.count() > 30:
             targets = targets.order_by('?')[:30]
@@ -193,6 +208,15 @@ def targets_not_behind_sun(start, aperture=None, category=None):
         tgs = tgs.filter(Q(avm_code__startswith=category) | Q(avm_code__contains=join_cat))
     return tgs
 
+
+def targets_all(aperture='0m4', category=None):
+    tgs = Target.objects.filter(~Q(avm_desc='')).order_by('avm_desc')
+    if aperture:
+        tgs = filter_targets_with_aperture(tgs, aperture)
+    if category:
+        join_cat = ";{}".format(category)
+        tgs = tgs.filter(Q(avm_code__startswith=category) | Q(avm_code__contains=join_cat))
+    return tgs
 
 def visible_targets(start, site, name=None, aperture=None, category=None, mode=None):
     """

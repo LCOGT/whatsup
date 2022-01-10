@@ -22,8 +22,9 @@ class FilterInline(admin.TabularInline):
 
 class TargetAdmin(admin.ModelAdmin):
     list_display = ['name', 'ra', 'dec', 'description', 'avm_desc']
-    list_filter = ['avm_desc']
+    list_filter = ['avm_desc','best']
     inlines = [FilterInline,]
+    search_fields = ['name','description']
 
 
 admin.site.register(Target, TargetAdmin)
