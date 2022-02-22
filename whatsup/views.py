@@ -173,7 +173,7 @@ def range_targets(query_params):
     if full == 'messier':
         targets = targets.filter(name__startswith='M')
     elif full == 'best':
-        targets = targets.filter(best=True)
+        targets = targets.filter(best=True).order_by('?')[:5]
     elif full != 'true':
         if targets.count() > 30:
             targets = targets.order_by('?')[:30]
