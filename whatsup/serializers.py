@@ -88,7 +88,7 @@ class TargetSerializerQuerystring(serializers.Serializer):
     category = serializers.ChoiceField(required=False, choices=CATEGORIES)
 
     def is_valid(self, raise_exception=True):
-        super(TargetSerializerQuerystring, self).is_valid(raise_exception)
+        super(TargetSerializerQuerystring, self).is_valid()
         if self.data.get('site', '') and not self.data.get('start', ''):
             raise serializers.ValidationError("You must provide start date/time and a site.")
         elif not self.data.get('site', ''):
@@ -108,7 +108,7 @@ class RangeTargetSerializerQuerystring(serializers.Serializer):
     category = serializers.ChoiceField(required=False, choices=CATEGORIES)
 
     def is_valid(self, raise_exception=True):
-        super(RangeTargetSerializerQuerystring, self).is_valid(raise_exception)
+        super(RangeTargetSerializerQuerystring, self).is_valid()
         if not self.data.get('start', ''):
             raise serializers.ValidationError("You must provide start date/time.")
         elif not self.data.get('end', ''):

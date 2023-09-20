@@ -17,7 +17,6 @@ GNU General Public License for more details.
 
 from django.contrib.auth.models import User
 from django.db import models
-from django.utils.translation import ugettext as _
 
 APERTURES = (
     ('1m0', '1-meter'), ('2m0', '2-meter'), ('0m4', '0.4-meter'), ('any', 'Any'), ('sml', ' 1m and 0.4m only'))
@@ -59,8 +58,8 @@ class Constellation(models.Model):
     shortname = models.CharField(max_length=3)
 
     class Meta:
-        verbose_name = _('Constellation')
-        verbose_name_plural = _('Constellations')
+        verbose_name = 'Constellation'
+        verbose_name_plural = 'Constellations'
 
     def __unicode__(self):
         return u"%s" % self.name
@@ -76,8 +75,8 @@ class Target(models.Model):
     best = models.BooleanField("Editor's pick", default=False)
 
     class Meta:
-        verbose_name = _('Target')
-        verbose_name_plural = _('Targets')
+        verbose_name = 'Target'
+        verbose_name_plural = 'Targets'
         ordering = ['name', ]
 
     def __unicode__(self):
@@ -91,7 +90,7 @@ class Params(models.Model):
     aperture = models.CharField(max_length=3, choices=APERTURES, default='1m0')
 
     class Meta:
-        verbose_name = _('Observation Parameter')
+        verbose_name = 'Observation Parameter'
         ordering = ['target', 'aperture']
 
     def __unicode__(self):
