@@ -1,5 +1,5 @@
 Django==3.2.21
-psycopg2==2.8.3
+psycopg2==2.9.7
 numpy==1.25.2
 astropy==5.2
 astroplan==0.9
