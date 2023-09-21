@@ -82,7 +82,10 @@ def visible_targets(start, end=None, site=None, aperture=None, category=None, mo
     if not site:
         sites = coords.keys()
     else:
-        sites = [site]
+        if "," in site:
+            sites = site.split(",")
+        else:
+            sites = [site]
 
     target_list = []
     for site in sites:
@@ -91,9 +94,9 @@ def visible_targets(start, end=None, site=None, aperture=None, category=None, mo
         observer = Observer(location=location, name=site, timezone='UTC')
         targetlist = [FixedTarget(coord=SkyCoord(ra=t.ra*u.deg, dec=t.dec*u.deg), name=t.name)for t in targets]
         if end:
-            ever_observable = is_observable(constraints, observer, targetlist, time_range=time_range)
+            ever_observable = is_observable(constraints, observer, targetlist, time_range=time_range, time_grid_resolution=2*u.hour)
         else:
-            ever_observable = is_observable(constraints, observer, targetlist, times=times)
+            ever_observable = is_observable(constraints, observer, targetlist, times=times, time_grid_resolution=2*u.hour)
         target_array = np.array(targets)
         target_list += list(target_array[ever_observable])
         
