@@ -62,19 +62,19 @@ def ra_sun(start):
     ra = np.degrees(np.arctan2(y, x)) / 15
     return ra
 
-def visible_targets(start, end=None, site=None, aperture=None, category=None, mode=None):
+def visible_targets(start, end=None, site=None, category=None, mode=None):
+    s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S")
     targets = Target.objects.all()
+
     if mode == 'messier':
         targets = targets.filter(name__startswith='M')
     elif mode == 'best':
         targets = targets.filter(best=True)
-    if aperture:
-        targets = filter_targets_with_aperture(targets, aperture, mode)
     if category:
         join_cat = ";{}".format(category)
         targets = targets.filter(Q(avm_code__startswith=category) | Q(avm_code__contains=join_cat))
-    s1 = datetime.strptime(start, "%Y-%m-%dT%H:%M:%S")
     if end:
+        # Option for range
         e1 = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S")
         time_range = Time([s1, e1], format='datetime')
     else:
@@ -87,20 +87,22 @@ def visible_targets(start, end=None, site=None, aperture=None, category=None, mo
         else:
             sites = [site]
 
-    target_list = []
+    targetid_list = []
     for site in sites:
         elevation = coords[site]['alt'] * u.m
         location = EarthLocation.from_geodetic(coords[site]['lon'], coords[site]['lat'], elevation)
         observer = Observer(location=location, name=site, timezone='UTC')
-        targetlist = [FixedTarget(coord=SkyCoord(ra=t.ra*u.deg, dec=t.dec*u.deg), name=t.name)for t in targets]
+        targetlist = [FixedTarget(coord=SkyCoord(ra=t.ra*u.deg, dec=t.dec*u.deg), name=t.name) for t in targets]
+        targetids = [t.id for t in targets]
         if end:
+            # Option for range
             ever_observable = is_observable(constraints, observer, targetlist, time_range=time_range, time_grid_resolution=2*u.hour)
         else:
             ever_observable = is_observable(constraints, observer, targetlist, times=times, time_grid_resolution=2*u.hour)
-        target_array = np.array(targets)
-        target_list += list(target_array[ever_observable])
+        target_array = np.array(targetids)
+        targetid_list += list(target_array[ever_observable])
         
-    return set(target_list)
+    return set(targetid_list)
 
 def _visible_targets(start, site, aperture=None, category=None, mode=None):
     """
@@ -117,8 +119,6 @@ def _visible_targets(start, site, aperture=None, category=None, mode=None):
         tgs = Target.objects.filter(Q(ra__gte=float(s0)) | Q(ra__lte=float(e0)), ~Q(avm_desc='')).order_by('avm_desc')
     else:
         tgs = Target.objects.filter(~Q(avm_desc=''), ra__gte=float(s0), ra__lte=float(e0)).order_by('avm_desc')
-    if aperture:
-        tgs = filter_targets_with_aperture(tgs, aperture, mode)
     if category:
         join_cat = ";{}".format(category)
         tgs = tgs.filter(Q(avm_code__startswith=category) | Q(avm_code__contains=join_cat))
@@ -154,12 +154,14 @@ def range_targets(query_params):
     e1 = datetime.strptime(end, "%Y-%m-%dT%H:%M:%S")
     aperture = query_params.get('aperture', None)
     # Find targets within a date range (i.e. not behind Sun during that time)
-    meandate = s1 + (e1 - s1) / 2
-    targets = visible_targets(start=start, end=end, aperture=aperture, category=category, mode=mode)
+    targets = visible_targets(start=start, end=end, category=category, mode=mode)
     if mode == 'best':
         targets = random.choices(list(targets), k=5)
     elif mode != 'full':
         targets = random.choices(list(targets), k=30)
+    targets = Target.objects.filter(id__in=targets)
+    if aperture:
+        return filter_targets_with_aperture(tgs, aperture, mode)
     return targets
 
 def find_target(name):
@@ -179,16 +181,11 @@ def find_target(name):
     return resp
 
 
-def targets_not_behind_sun(start, aperture=None, category=None):
+def targets_not_behind_sun(start):
     ra = ra_sun(start)
     start = (ra - 4.) % 24
     end = (ra + 4.) % 24
-    tgs = Target.objects.exclude(avm_desc='', ra__gte=start, ra__lte=end)
-    if aperture:
-        tgs = filter_targets_with_aperture(tgs, aperture)
-    if category:
-        join_cat = ";{}".format(category)
-        tgs = tgs.filter(Q(avm_code__startswith=category) | Q(avm_code__contains=join_cat))
+    tgs = Target.objects.exclude(ra__gte=start, ra__lte=end)
     return tgs
 
 
