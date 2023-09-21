@@ -161,7 +161,7 @@ def range_targets(query_params):
         targets = random.choices(list(targets), k=30)
     targets = Target.objects.filter(id__in=targets)
     if aperture:
-        return filter_targets_with_aperture(tgs, aperture, mode)
+        return filter_targets_with_aperture(targets, aperture, mode)
     return targets
 
 def find_target(name):
