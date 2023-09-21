@@ -139,8 +139,10 @@ def search_targets(query_params):
     category = query_params.get('category', '')
     aperture = query_params.get('aperture', None)
     mode = query_params.get('mode', None)
-    name = query_params.get('name',None)
-    targets = visible_targets(start=start, site=site, aperture=aperture, category=category, mode=mode)
+    targets = visible_targets(start=start, site=site, category=category, mode=mode)
+    targets = Target.objects.filter(id__in=targets)
+    if aperture:
+        return filter_targets_with_aperture(targets, aperture, mode)
     return targets
 
 def range_targets(query_params):
