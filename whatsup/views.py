@@ -27,7 +27,7 @@ from rest_framework_jsonp.renderers import JSONPRenderer
 from whatsup.models import Target
 from whatsup.serializers import TargetSerializerQuerystring, \
     AdvTargetSerializer, RangeTargetSerializerQuerystring
-from .utils import search_targets, range_targets, filter_targets_with_aperture
+from .utils import search_targets, range_targets, filter_targets_with_aperture, targets_all
 
 import logging
 
